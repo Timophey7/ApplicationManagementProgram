@@ -1,0 +1,38 @@
+spring:
+  cloud:
+    loadbalancer:
+      eureka:
+        approximate-zone-from-hostname: true
+    gateway:
+      routes:
+        - id: task-service
+          uri:
+            http://localhost:8080
+          predicates:
+            - Path=/v1/tracker/**
+          filters:
+            - name: AuthenticationFilter
+
+        - id: security-jwt-service
+          uri:
+            http://localhost:8085
+          predicates:
+            - Path=/v1/auth/**
+  application:
+    name: api-gateway
+
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
+server:
+  port: 8089

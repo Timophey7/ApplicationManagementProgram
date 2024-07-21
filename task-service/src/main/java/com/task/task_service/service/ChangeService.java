@@ -10,7 +10,7 @@ import java.util.List;
 public interface ChangeService {
 
 
-    void getChangesByApp(int appId) throws AppNotFoundException;
+    void getChangesByApp(String uniqueCode) throws AppNotFoundException;
 
     void getChange(App app, GitHubRequest gitHubRequest, String changeType);
 

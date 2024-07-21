@@ -14,29 +14,29 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
 
     @Query(value = "SELECT *\n" +
             "FROM controloftask.app_tasks\n" +
-            "WHERE app_id = :appId\n" +
+            "WHERE app_unique_code = :code\n" +
             "ORDER BY priority_enums DESC;", nativeQuery = true)
-    List<Task> sortTaskByHighPriority(@Param("appId") int appId);
+    List<Task> sortTaskByHighPriority(@Param("code") String code);
 
     @Query(value = "SELECT *\n" +
             "FROM controloftask.app_tasks\n" +
-            "WHERE app_id = :appId\n" +
+            "WHERE app_unique_code = :code\n" +
             "ORDER BY priority_enums ASC;", nativeQuery = true)
-    List<Task> sortTaskByLowPriority(@Param("appId") int appId);
+    List<Task> sortTaskByLowPriority(@Param("code") String code);
 
     @Query(value = "SELECT *,TIMESTAMPDIFF(DAY, CURDATE(), tasks.end_task_work) AS days_left\n" +
             "FROM controloftask.app_tasks\n" +
-            "WHERE tasks.end_task_work > CURDATE() and app_id = :appId\n" +
+            "WHERE tasks.end_task_work > CURDATE() and app_unique_code = :code\n" +
             "ORDER BY days_left ASC;", nativeQuery = true)
-    List<Task> sortTaskByClosestDate(@Param("appId") int appId);
+    List<Task> sortTaskByClosestDate(@Param("code") String code);
 
     @Query(value = "SELECT *,TIMESTAMPDIFF(DAY, CURDATE(), tasks.end_task_work) AS days_left\n" +
             "FROM controloftask.app_tasks\n" +
-            "WHERE tasks.end_task_work > CURDATE() and app_id = :appId\n" +
+            "WHERE tasks.end_task_work > CURDATE() and app_unique_code = :code\n" +
             "ORDER BY days_left DESC;", nativeQuery = true)
-    List<Task> sortTaskByDistantDate(@Param("appId") int appId);
+    List<Task> sortTaskByDistantDate(@Param("code") String code);
 
-    @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_id = :appId",nativeQuery = true)
-    List<Task> findAllTasksByAppId(@Param("appId") int appId);
+    @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_unique_code = :code",nativeQuery = true)
+    List<Task> findAllTasksByAppId(@Param("code") String code);
 
 }

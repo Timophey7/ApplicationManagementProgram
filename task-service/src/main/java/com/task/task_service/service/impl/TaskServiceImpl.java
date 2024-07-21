@@ -30,8 +30,8 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public List<TaskResponse> getTasksByApp(int appId) {
-        return taskRepository.findAllTasksByAppId(appId)
+    public List<TaskResponse> getTasksByApp(String uniqueCode) {
+        return taskRepository.findAllTasksByAppId(uniqueCode)
                 .stream()
                 .map(el -> mapToTaskResponse(el))
                 .collect(Collectors.toList());
@@ -51,28 +51,28 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getSortedTasks(int appId, PriorityEnums enums) {
+    public List<Task> getSortedTasks(String uniqueCode, PriorityEnums enums) {
         if (enums.equals(PriorityEnums.LOW_PRIORITY)){
-            return taskRepository.sortTaskByLowPriority(appId);
+            return taskRepository.sortTaskByLowPriority(uniqueCode);
         } else if (enums.equals(PriorityEnums.HIGH_PRIORITY)) {
-            return taskRepository.sortTaskByHighPriority(appId);
+            return taskRepository.sortTaskByHighPriority(uniqueCode);
         }
         return List.of();
     }
 
     @Override
-    public List<Task> getSortedTaskByDate(int appId, DateEnums enums) {
+    public List<Task> getSortedTaskByDate(String uniqueCode, DateEnums enums) {
         if (enums.equals(DateEnums.CLOSEST)){
-            return taskRepository.sortTaskByClosestDate(appId);
+            return taskRepository.sortTaskByClosestDate(uniqueCode);
         }else if (enums.equals(DateEnums.DISTANT)){
-            return taskRepository.sortTaskByDistantDate(appId);
+            return taskRepository.sortTaskByDistantDate(uniqueCode);
         }
         return List.of();
     }
 
     @Override
-    public Task saveTask(int appId, Task task) throws AppNotFoundException {
-        App app = appRepository.findById(appId)
+    public Task saveTask(String uniqueCode, Task task) throws AppNotFoundException {
+        App app = appRepository.findAppByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new AppNotFoundException("app not found"));
 
         task.setApp(app);

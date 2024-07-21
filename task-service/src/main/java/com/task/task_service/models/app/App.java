@@ -24,6 +24,7 @@ public class App {
     @Column(name = "app_name")
     String name;
     String gitHubUserName;
+    String uniqueCode;
     String description;
     @OneToMany(mappedBy = "app")
     List<Task> tasks = new ArrayList<>();

@@ -23,7 +23,7 @@ public class Task {
     int id;
     String taskName;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "app_id")
+    @JoinColumn(name = "uniqueCode")
     App app;
     @Column(name = "priority_enums")
     @Enumerated(EnumType.ORDINAL)

@@ -14,13 +14,13 @@ public interface TaskService {
 
     TaskResponse mapToTaskResponse(Task task);
 
-    List<TaskResponse> getTasksByApp(int appId);
+    List<TaskResponse> getTasksByApp(String uniqueCode);
 
-    List<Task> getSortedTasks(int appId, PriorityEnums enums);
+    List<Task> getSortedTasks(String uniqueCode, PriorityEnums enums);
 
-    List<Task> getSortedTaskByDate(int appId, DateEnums enums);
+    List<Task> getSortedTaskByDate(String uniqueCode, DateEnums enums);
 
-    Task saveTask(int appId,Task task) throws AppNotFoundException;
+    Task saveTask(String uniqueCode,Task task) throws AppNotFoundException;
 
     void setCondition(int taskId,String condition) throws TaskNotFoundException;
 

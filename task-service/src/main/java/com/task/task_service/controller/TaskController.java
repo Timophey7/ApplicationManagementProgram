@@ -25,7 +25,7 @@ public class TaskController {
 
     TaskService taskService;
 
-    @PostMapping("/apps/{appId}/tasks/{taskId}/setCondition")
+    @PostMapping("/apps/{uniqueCode}/tasks/{taskId}/setCondition")
     public ResponseEntity<?> setTaskCondition(@PathVariable("taskId") int taskId,@RequestBody String condition){
         try {
             taskService.setCondition(taskId, condition);
@@ -35,7 +35,7 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/apps/{appId}/tasks/{taskId}")
+    @GetMapping("/apps/{uniqueCode}/tasks/{taskId}")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable("taskId") int taskId){
         try {
             TaskResponse taskResponseById = taskService.getTaskResponseById(taskId);
@@ -45,19 +45,19 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/apps/{appId}/tasks")
-    public ResponseEntity<?> getAllTasksByApp(@PathVariable("appId") int appId){
-        List<TaskResponse> tasksByApp = taskService.getTasksByApp(appId);
+    @GetMapping("/apps/{uniqueCode}/tasks")
+    public ResponseEntity<?> getAllTasksByApp(@PathVariable("uniqueCode") String uniqueCode){
+        List<TaskResponse> tasksByApp = taskService.getTasksByApp(uniqueCode);
         return new ResponseEntity<>(
                 tasksByApp,
                 HttpStatus.OK
         );
     }
 
-    @PostMapping("/apps/{appId}/createTask")
-    public ResponseEntity<?> createNewTask(@PathVariable("appId") int appId, @RequestBody Task task){
+    @PostMapping("/apps/{uniqueCode}/createTask")
+    public ResponseEntity<?> createNewTask(@PathVariable("uniqueCode") String uniqueCode, @RequestBody Task task){
         try {
-            Task createdTask = taskService.saveTask(appId, task);
+            Task createdTask = taskService.saveTask(uniqueCode, task);
             return new ResponseEntity<>(
                     "success",
                     HttpStatus.CREATED
@@ -67,10 +67,10 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/apps/{appId}/sortTaskByPriority")
-    public ResponseEntity<?> sortTaskByPriority(@PathVariable("appId") int appId,@RequestBody String enums){
+    @GetMapping("/apps/{uniqueCode}/sortTaskByPriority")
+    public ResponseEntity<?> sortTaskByPriority(@PathVariable("uniqueCode") String uniqueCode,@RequestBody String enums){
         PriorityEnums priorityEnums = PriorityEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTasks(appId, priorityEnums)
+        List<TaskResponse> taskResponseList = taskService.getSortedTasks(uniqueCode, priorityEnums)
                 .stream()
                 .map(taskService::mapToTaskResponse)
                 .collect(Collectors.toList());
@@ -81,10 +81,10 @@ public class TaskController {
         );
     }
 
-    @GetMapping("/apps/{appId}/sortTaskByDate")
-    public ResponseEntity<?> sortTaskByDate(@PathVariable("appId") int appId,@RequestBody String enums){
+    @GetMapping("/apps/{uniqueCode}/sortTaskByDate")
+    public ResponseEntity<?> sortTaskByDate(@PathVariable("appId") String uniqueCode,@RequestBody String enums){
         DateEnums dateEnums = DateEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(appId, dateEnums)
+        List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(uniqueCode, dateEnums)
                 .stream()
                 .map(taskService::mapToTaskResponse)
                 .collect(Collectors.toList());

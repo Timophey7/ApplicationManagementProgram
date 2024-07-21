@@ -22,10 +22,10 @@ public class GitHubIntegrationController {
 
     ChangeService changeService;
 
-    @GetMapping("/apps/{appId}/getChanges")
-    public ResponseEntity<?> getChanges(@PathVariable("appId") int appId){
+    @GetMapping("/apps/{uniqueCode}/getChanges")
+    public ResponseEntity<?> getChanges(@PathVariable("uniqueCode") String uniqueCode){
         try {
-            changeService.getChangesByApp(appId);
+            changeService.getChangesByApp(uniqueCode);
             return ResponseEntity.ok("success");
         }catch (AppNotFoundException exception){
             return ResponseEntity.notFound().build();

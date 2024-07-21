@@ -41,8 +41,8 @@ public class ChangeServiceImpl implements ChangeService {
 
 
     @Override
-    public void getChangesByApp(int appId) throws AppNotFoundException {
-        App app = appRepository.findById(appId)
+    public void getChangesByApp(String uniqueCode) throws AppNotFoundException {
+        App app = appRepository.findAppByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new AppNotFoundException("app not found"));
         GitHubRequest gitHubRequest = GitHubRequest
                 .builder()

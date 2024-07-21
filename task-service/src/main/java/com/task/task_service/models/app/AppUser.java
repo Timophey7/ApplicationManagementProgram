@@ -1,10 +1,15 @@
 package com.task.task_service.models.app;
 
+import com.task.task_service.models.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "app_users")
 @Data
@@ -18,12 +23,16 @@ public class AppUser {
     @Column(name = "app_id")
     int appId;
 
-    @Column(name = "user_email")
+    @Column(name = "user_email",unique = true)
     String userEmail;
 
-    public AppUser(int appId, String userEmail) {
+    @Enumerated(EnumType.STRING)
+    Role userRole;
+
+    public AppUser(int appId, String userEmail,Role userRole) {
         this.appId = appId;
         this.userEmail = userEmail;
+        this.userRole = userRole;
     }
 }
 

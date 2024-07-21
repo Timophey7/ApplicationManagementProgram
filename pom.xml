@@ -33,6 +33,8 @@
 		<module>task-service</module>
 		<module>security-jwt-service</module>
 		<module>discovery-service</module>
+		<module>notification-service</module>
+		<module>api-gateway</module>
 	</modules>
 	<dependencies>
 		<dependency>
