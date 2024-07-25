@@ -1,4 +1,4 @@
-package com.task.task_service.service;
+package com.task.task_service.service.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

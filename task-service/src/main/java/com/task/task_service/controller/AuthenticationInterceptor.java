@@ -3,7 +3,7 @@ package com.task.task_service.controller;
 import com.task.task_service.models.app.AppUser;
 import com.task.task_service.models.enums.Role;
 import com.task.task_service.repository.AppUserRepository;
-import com.task.task_service.service.JwtService;
+import com.task.task_service.service.utils.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -8,7 +8,7 @@ import com.task.task_service.models.enums.Role;
 import com.task.task_service.repository.AppRepository;
 import com.task.task_service.repository.AppUserRepository;
 import com.task.task_service.service.AppService;
-import com.task.task_service.service.UniqueCodeGenerator;
+import com.task.task_service.service.utils.UniqueCodeGenerator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

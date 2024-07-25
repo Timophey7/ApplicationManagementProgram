@@ -73,7 +73,7 @@ public class ChangeServiceImpl implements ChangeService {
         List<Change> changes = createChangeFromJson(exchange.getBody());
 
         List<Change> changeList = addChangeType(changes,changeType);
-        //TODO create method to map change
+
         changeList.stream()
                 .filter(change -> changeRepository.findChangeByChangeTitle(change.getChangeTitle()) == null)
                 .forEach(change -> {
