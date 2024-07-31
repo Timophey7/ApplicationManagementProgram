@@ -31,7 +31,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskResponse> getTasksByApp(String uniqueCode) {
-        return taskRepository.findAllTasksByAppId(uniqueCode)
+        return taskRepository.findAllTasksByAppUniqueCode(uniqueCode)
                 .stream()
                 .map(el -> mapToTaskResponse(el))
                 .collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class TaskServiceImpl implements TaskService {
         App app = appRepository.findAppByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new AppNotFoundException("app not found"));
 
-        task.setApp(app);
+        task.setAppUniqueCode(uniqueCode);
         taskRepository.save(task);
         return task;
     }

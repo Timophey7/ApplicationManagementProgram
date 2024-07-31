@@ -1,4 +1,4 @@
-package com.task.task_service.models;
+package com.task.task_service.models.change;
 
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.enums.ChangeType;
@@ -24,8 +24,9 @@ public class Change {
     LocalDateTime changeTime;
     String personWhoAddChange;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "app_name")
+    @JoinColumn(name = "app_id")
     App app;
+    String appUniqueCode;
     @Enumerated(EnumType.STRING)
     ChangeType changeType;
 

@@ -9,8 +9,11 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "22181:2181"
+    networks:
+      - app
 
   kafka:
+    container_name: kafka
     image: confluentinc/cp-kafka:7.4.4
     depends_on:
       - zookeeper
@@ -19,7 +22,122 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - app
+
+  maildev:
+    container_name: maildev
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
+
+  api-gateway:
+    image: api-gateway:latest
+    environment:
+      DISCOVERY_HOST: discovery
+      TASK_SERVICE_HOST: task-service
+      SECURITY_SERVICE_HOST: security-service
+    networks:
+      - app
+    ports:
+      - "8089:8089"
+    depends_on:
+      - discovery-service
+      - task-service
+      - security-service
+
+
+  notification-service:
+    image: notification-service:latest
+    environment:
+      KAFKA_HOST: kafka
+      MAILDEV_HOST: maildev
+      MAILDEV_PORT: 1025
+      DISCOVERY_HOST: discovery
+    ports:
+      - "8087:8087"
+    networks:
+      - app
+    depends_on:
+      - kafka
+
+
+  task-service:
+    image: task-service:latest
+    environment:
+      DISCOVERY_HOST: discovery
+      KAFKA_HOST: kafka
+      HOST: some-mysql
+      SECURITY_SERVICE_HOST: security-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app
+    restart:
+      always
+    depends_on:
+      - kafka
+      - mysql
+      - discovery-service
+
+  security-service:
+    container_name: security-service
+    image: security-service:latest
+    environment:
+      HOST: some-postgres
+      DISCOVERY_HOST: discovery
+    networks:
+      - app
+    ports:
+      - "8085:8085"
+    depends_on:
+      - discovery-service
+      - postgres
+
+  postgres:
+    container_name: some-postgres
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "security-service"
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "test"
+    networks:
+      - app
+    volumes:
+      - ./postgres-db:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+  mysql:
+    container_name: some-mysql
+    image: mysql/mysql-server:5.7
+    environment:
+      MYSQL_DATABASE: controloftask
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
+    networks:
+      - app
+    volumes:
+      - ./mysql-db:/var/lib/mysql
+    restart: always
+
+  discovery-service:
+    container_name: discovery
+    image: discovery-service:latest
+    ports:
+      - "8761:8761"
+    networks:
+      - app
+
+networks:
+  app:
+
+volumes:
+  db:
+    driver: local

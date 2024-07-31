@@ -1,16 +1,16 @@
 package com.task.task_service.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.task.task_service.exceptions.AppNotFoundException;
-import com.task.task_service.models.GitHubRequest;
+import com.task.task_service.models.change.ChangeResponse;
 import com.task.task_service.service.ChangeService;
-import com.task.task_service.service.TaskService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Slf4j
@@ -25,8 +25,9 @@ public class GitHubIntegrationController {
     @GetMapping("/apps/{uniqueCode}/getChanges")
     public ResponseEntity<?> getChanges(@PathVariable("uniqueCode") String uniqueCode){
         try {
-            changeService.getChangesByApp(uniqueCode);
-            return ResponseEntity.ok("success");
+            changeService.loadAppChanges(uniqueCode);
+            List<ChangeResponse> changes = changeService.getChanges(uniqueCode);
+            return ResponseEntity.ok(changes);
         }catch (AppNotFoundException exception){
             return ResponseEntity.notFound().build();
         }

@@ -23,7 +23,7 @@ public class AppUser {
     @Column(name = "app_id")
     int appId;
 
-    @Column(name = "user_email",unique = true)
+    @Column(name = "user_email",unique = false)
     String userEmail;
 
     @Enumerated(EnumType.STRING)

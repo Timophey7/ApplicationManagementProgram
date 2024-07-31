@@ -1,6 +1,7 @@
 package com.notservice.config;
 
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +10,12 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 @Configuration
 public class MailSenderConfig {
+
+    @Value("${maildev.host}")
+    private String maildevHost;
+
+    @Value("${maildev.port}")
+    private int maildevPort;
 
     @Bean
     public MimeMessage mimeMessage(){
@@ -23,8 +30,8 @@ public class MailSenderConfig {
     @Bean
     public JavaMailSender mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("localhost");
-        mailSender.setPort(1025);
+        mailSender.setHost(maildevHost);
+        mailSender.setPort(maildevPort);
         mailSender.setUsername("hello");
         mailSender.setPassword("hello");
         return mailSender;

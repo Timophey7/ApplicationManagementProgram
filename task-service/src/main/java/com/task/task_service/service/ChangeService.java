@@ -2,17 +2,19 @@ package com.task.task_service.service;
 
 import com.task.task_service.exceptions.AppNotFoundException;
 import com.task.task_service.models.app.App;
-import com.task.task_service.models.Change;
+import com.task.task_service.models.change.Change;
 import com.task.task_service.models.GitHubRequest;
+import com.task.task_service.models.change.ChangeResponse;
 
 import java.util.List;
 
 public interface ChangeService {
 
+    List<ChangeResponse> getChanges(String uniqueCode);
 
-    void getChangesByApp(String uniqueCode) throws AppNotFoundException;
+    void loadAppChanges(String uniqueCode) throws AppNotFoundException;
 
-    void getChange(App app, GitHubRequest gitHubRequest, String changeType);
+    void loadChange(App app, GitHubRequest gitHubRequest, String changeType);
 
     List<Change> createChangeFromJson(String json);
 

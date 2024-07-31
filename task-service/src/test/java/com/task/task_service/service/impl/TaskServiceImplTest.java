@@ -74,12 +74,12 @@ class TaskServiceImplTest {
     @Test
     void getTasksByAppShouldReturnTaskResponse() {
 
-        when(taskRepository.findAllTasksByAppId(uniqueCode)).thenReturn(List.of(task));
+        when(taskRepository.findAllTasksByAppUniqueCode(uniqueCode)).thenReturn(List.of(task));
 
         List<TaskResponse> tasksByApp = taskService.getTasksByApp(uniqueCode);
 
         assertEquals(List.of(taskResponse),tasksByApp);
-        verify(taskRepository).findAllTasksByAppId(uniqueCode);
+        verify(taskRepository).findAllTasksByAppUniqueCode(uniqueCode);
 
     }
 
@@ -163,7 +163,6 @@ class TaskServiceImplTest {
         Task saveTask = taskService.saveTask(uniqueCode, task);
 
         assertEquals(task,saveTask);
-        assertEquals(app,saveTask.getApp());
         verify(taskRepository).save(task);
 
     }

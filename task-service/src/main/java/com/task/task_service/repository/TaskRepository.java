@@ -37,6 +37,6 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
     List<Task> sortTaskByDistantDate(@Param("code") String code);
 
     @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_unique_code = :code",nativeQuery = true)
-    List<Task> findAllTasksByAppId(@Param("code") String code);
+    List<Task> findAllTasksByAppUniqueCode(@Param("code") String code);
 
 }
