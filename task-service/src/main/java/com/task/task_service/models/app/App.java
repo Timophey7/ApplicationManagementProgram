@@ -32,11 +32,4 @@ public class App {
     @OneToMany(mappedBy = "app")
     List<Change> changes = new ArrayList<>();
 
-    public void addNewTask(Task task){
-        tasks.add(task);
-    }
-
-    public void AddNewChange(Change change){
-        changes.add(change);
-    }
 }

@@ -45,10 +45,7 @@ services:
       - app
     ports:
       - "8089:8089"
-    depends_on:
-      - discovery-service
-      - task-service
-      - security-service
+
 
 
   notification-service:

@@ -9,8 +9,6 @@ import java.util.Optional;
 @Repository
 public interface AppRepository extends JpaRepository<App,Integer> {
 
-    App findAppByName(String appName);
-
     Optional<App> findAppByUniqueCode(String uniqueCode);
 
 }

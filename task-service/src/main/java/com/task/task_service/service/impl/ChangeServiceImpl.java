@@ -44,6 +44,7 @@ public class ChangeServiceImpl implements ChangeService {
 
     @Override
     public List<ChangeResponse> getChanges(String uniqueCode) {
+
         List<Change> changesByAppUniqueCode = changeRepository.getChangesByAppUniqueCode(uniqueCode);
         log.info("result changes: "+changesByAppUniqueCode);
         List<ChangeResponse> collect = changesByAppUniqueCode
@@ -60,6 +61,7 @@ public class ChangeServiceImpl implements ChangeService {
                 .changeTime(change.getChangeTime())
                 .changeTitle(change.getChangeTitle())
                 .personWhoAddChange(change.getPersonWhoAddChange())
+                .changeType(change.getChangeType())
                 .build();
     }
 

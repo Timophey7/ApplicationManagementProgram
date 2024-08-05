@@ -10,10 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 
@@ -25,6 +22,7 @@ import java.nio.file.attribute.UserPrincipalNotFoundException;
 public class AppController {
 
     AppService appService;
+
 
     @PostMapping("/createAppTracker")
     public ResponseEntity<?> createAppTracker(@Valid @RequestBody CreateAppTrackerDTO appTrackerDTO, BindingResult result){

@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -70,11 +69,7 @@ public class TaskController {
     @GetMapping("/apps/{uniqueCode}/sortTaskByPriority")
     public ResponseEntity<?> sortTaskByPriority(@PathVariable("uniqueCode") String uniqueCode,@RequestBody String enums){
         PriorityEnums priorityEnums = PriorityEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTasks(uniqueCode, priorityEnums)
-                .stream()
-                .map(taskService::mapToTaskResponse)
-                .collect(Collectors.toList());
-
+        List<TaskResponse> taskResponseList = taskService.getSortedTasks(uniqueCode, priorityEnums);
         return new ResponseEntity<>(
                 taskResponseList,
                 HttpStatus.OK
@@ -82,14 +77,9 @@ public class TaskController {
     }
 
     @GetMapping("/apps/{uniqueCode}/sortTaskByDate")
-    public ResponseEntity<?> sortTaskByDate(@PathVariable("appId") String uniqueCode,@RequestBody String enums){
+    public ResponseEntity<?> sortTaskByDate(@PathVariable("uniqueCode") String uniqueCode,@RequestBody String enums){
         DateEnums dateEnums = DateEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(uniqueCode, dateEnums)
-                .stream()
-                .map(taskService::mapToTaskResponse)
-                .collect(Collectors.toList());
-
-
+        List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(uniqueCode, dateEnums);
         return new ResponseEntity<>(
                 taskResponseList,
                 HttpStatus.OK

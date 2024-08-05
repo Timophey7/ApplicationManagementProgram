@@ -38,7 +38,4 @@ public class Task {
     LocalDateTime endTaskWork;
     String responsiblePerson;
 
-    public String getConditionAsString() {
-        return condition.name();
-    }
 }

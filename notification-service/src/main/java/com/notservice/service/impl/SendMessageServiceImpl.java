@@ -3,7 +3,6 @@ package com.notservice.service.impl;
 import com.notservice.models.MessageResponse;
 import com.notservice.service.SendMessageService;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeBodyPart;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,23 +21,21 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Override
     public void sendMessage(MessageResponse messageResponse) {
         try {
-            MimeBodyPart messageBodyPart = new MimeBodyPart();
             String htmlContent = "<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<head>\n" +
                     "  <title>Приветственное письмо</title>\n" +
                     "</head>\n" +
                     "<body>\n" +
-                    "  <h1>Привет, [Имя пользователя]!</h1>\n" +
-                    "  <p>Добро пожаловать в наше сообщество!</p>\n" +
-                    "  <a href=\"[Ссылка с MessageResponse]\">\n" +
+                    "  <p>Добро пожаловать!</p>\n" +
+                    "  <a href=\"[MessageResponse]\">\n" +
                     "    <button>Узнать больше</button>\n" +
                     "  </a>\n" +
                     "</body>\n" +
                     "</html>";
 
             String url = "http:localhost:8080/apps/"+messageResponse.getApp_id()+"/tasks";
-            htmlContent = htmlContent.replace("[Ссылка с MessageResponse]", url);
+            htmlContent = htmlContent.replace("[MessageResponse]", url);
             helper.setTo(messageResponse.getEmail());
             helper.setFrom("timopheyonisenko@gmail.com");
             helper.setText(htmlContent,true);

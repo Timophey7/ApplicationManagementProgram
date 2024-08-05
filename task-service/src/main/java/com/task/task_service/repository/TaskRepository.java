@@ -24,17 +24,18 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
             "ORDER BY priority_enums ASC;", nativeQuery = true)
     List<Task> sortTaskByLowPriority(@Param("code") String code);
 
-    @Query(value = "SELECT *,TIMESTAMPDIFF(DAY, CURDATE(), tasks.end_task_work) AS days_left\n" +
-            "FROM controloftask.app_tasks\n" +
-            "WHERE tasks.end_task_work > CURDATE() and app_unique_code = :code\n" +
+    @Query(value = "SELECT *, TIMESTAMPDIFF(DAY, CURDATE(), end_task_work) AS days_left " +
+            "FROM controloftask.app_tasks " +
+            "WHERE end_task_work > CURDATE() AND app_unique_code = :code " +
             "ORDER BY days_left ASC;", nativeQuery = true)
     List<Task> sortTaskByClosestDate(@Param("code") String code);
 
-    @Query(value = "SELECT *,TIMESTAMPDIFF(DAY, CURDATE(), tasks.end_task_work) AS days_left\n" +
-            "FROM controloftask.app_tasks\n" +
-            "WHERE tasks.end_task_work > CURDATE() and app_unique_code = :code\n" +
+    @Query(value = "SELECT *, TIMESTAMPDIFF(DAY, CURDATE(), end_task_work) AS days_left " +
+            "FROM controloftask.app_tasks " +
+            "WHERE end_task_work > CURDATE() AND app_unique_code = :code " +
             "ORDER BY days_left DESC;", nativeQuery = true)
     List<Task> sortTaskByDistantDate(@Param("code") String code);
+
 
     @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_unique_code = :code",nativeQuery = true)
     List<Task> findAllTasksByAppUniqueCode(@Param("code") String code);

@@ -37,35 +37,31 @@ public class TaskServiceImpl implements TaskService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public TaskResponse mapToTaskResponse(Task task) {
-        return TaskResponse.builder()
-                .taskName(task.getTaskName())
-                .description(task.getDescription())
-                .priorityEnums(task.getPriorityEnums())
-                .condition(task.getCondition())
-                .startTaskWork(task.getStartTaskWork())
-                .endTaskWork(task.getEndTaskWork())
-                .responsiblePerson(task.getResponsiblePerson())
-                .build();
-    }
 
     @Override
-    public List<Task> getSortedTasks(String uniqueCode, PriorityEnums enums) {
+    public List<TaskResponse> getSortedTasks(String uniqueCode, PriorityEnums enums) {
         if (enums.equals(PriorityEnums.LOW_PRIORITY)){
-            return taskRepository.sortTaskByLowPriority(uniqueCode);
+            return taskRepository.sortTaskByLowPriority(uniqueCode)
+                    .stream().map(this::mapToTaskResponse)
+                    .collect(Collectors.toList());
         } else if (enums.equals(PriorityEnums.HIGH_PRIORITY)) {
-            return taskRepository.sortTaskByHighPriority(uniqueCode);
+            return taskRepository.sortTaskByHighPriority(uniqueCode)
+                    .stream().map(this::mapToTaskResponse)
+                    .collect(Collectors.toList());
         }
         return List.of();
     }
 
     @Override
-    public List<Task> getSortedTaskByDate(String uniqueCode, DateEnums enums) {
+    public List<TaskResponse> getSortedTaskByDate(String uniqueCode, DateEnums enums) {
         if (enums.equals(DateEnums.CLOSEST)){
-            return taskRepository.sortTaskByClosestDate(uniqueCode);
+            return taskRepository.sortTaskByClosestDate(uniqueCode)
+                    .stream().map(this::mapToTaskResponse)
+                    .collect(Collectors.toList());
         }else if (enums.equals(DateEnums.DISTANT)){
-            return taskRepository.sortTaskByDistantDate(uniqueCode);
+            return taskRepository.sortTaskByDistantDate(uniqueCode)
+                    .stream().map(this::mapToTaskResponse)
+                    .collect(Collectors.toList());
         }
         return List.of();
     }
@@ -95,6 +91,19 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new TaskNotFoundException("task not found"));
 
         return mapToTaskResponse(task);
+    }
+
+    @Override
+    public TaskResponse mapToTaskResponse(Task task) {
+        return TaskResponse.builder()
+                .taskName(task.getTaskName())
+                .description(task.getDescription())
+                .priorityEnums(task.getPriorityEnums())
+                .condition(task.getCondition())
+                .startTaskWork(task.getStartTaskWork())
+                .endTaskWork(task.getEndTaskWork())
+                .responsiblePerson(task.getResponsiblePerson())
+                .build();
     }
 
 

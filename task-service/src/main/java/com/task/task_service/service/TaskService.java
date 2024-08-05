@@ -16,9 +16,9 @@ public interface TaskService {
 
     List<TaskResponse> getTasksByApp(String uniqueCode);
 
-    List<Task> getSortedTasks(String uniqueCode, PriorityEnums enums);
+    List<TaskResponse> getSortedTasks(String uniqueCode, PriorityEnums enums);
 
-    List<Task> getSortedTaskByDate(String uniqueCode, DateEnums enums);
+    List<TaskResponse> getSortedTaskByDate(String uniqueCode, DateEnums enums);
 
     Task saveTask(String uniqueCode,Task task) throws AppNotFoundException;
 

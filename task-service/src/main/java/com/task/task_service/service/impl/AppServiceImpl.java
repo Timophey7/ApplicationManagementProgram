@@ -34,40 +34,6 @@ public class AppServiceImpl implements AppService {
     final AppUserRepository appUserRepository;
     final KafkaTemplate<String, MessageResponse> kafkaTemplate;
 
-    @Override
-    public void sendMessagesToUsers(List<String> emails, int appId) {
-        for (String email : emails){
-            try {
-                sendMessageToKafkaTopic(email, appId);
-            }catch (Exception exception){
-                exception.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void checkUsersEmails(List<String> emails, int appId) throws UserPrincipalNotFoundException {
-
-        for (String email : emails){
-            String result = webClientBuilder.build().post()
-                    .uri("http://"+securityHost+":8085/v1/auth/userExists")
-                    .bodyValue(email)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
-            if (result.equals("notExists")){
-                throw new UserPrincipalNotFoundException("user not found");
-            }
-        }
-
-    }
-
-    public void sendMessageToKafkaTopic(String email,int appId){
-        MessageResponse messageResponse = new MessageResponse();
-        messageResponse.setEmail(email);
-        messageResponse.setApp_id(appId);
-        kafkaTemplate.send("invite",messageResponse);
-    }
 
     @Override
     public App createAppTrackerByTrackerDTO(CreateAppTrackerDTO appTrackerDTO) throws UserPrincipalNotFoundException {
@@ -89,13 +55,50 @@ public class AppServiceImpl implements AppService {
         emails.stream()
                 .forEach(el -> {
                     if (emails.stream().findFirst().orElse(null) == el){
-                        appUserRepository.save(new AppUser(app.getId(),el, Role.ADMIN));
+                        appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(),el, Role.ADMIN));
                     }else {
-                        appUserRepository.save(new AppUser(app.getId(), el, Role.DEVELOPER));
+                        appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(), el, Role.DEVELOPER));
                     }
                 });
 
         return app;
+    }
+
+
+    @Override
+    public void checkUsersEmails(List<String> emails, int appId) throws UserPrincipalNotFoundException {
+
+        for (String email : emails){
+            String result = webClientBuilder.build().post()
+                    .uri("http://"+securityHost+":8085/v1/auth/userExists")
+                    .bodyValue(email)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+            if (result.equals("notExists")){
+                throw new UserPrincipalNotFoundException("user not found");
+            }
+        }
+
+    }
+
+
+    @Override
+    public void sendMessagesToUsers(List<String> emails, int appId) {
+        for (String email : emails){
+            try {
+                sendMessageToKafkaTopic(email, appId);
+            }catch (Exception exception){
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    public void sendMessageToKafkaTopic(String email,int appId){
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setEmail(email);
+        messageResponse.setApp_id(appId);
+        kafkaTemplate.send("invite",messageResponse);
     }
 
 
