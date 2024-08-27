@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
@@ -14,8 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "app_changes")
-public class Change {
+@Table(name = "app_changes",indexes = {
+        @Index(columnList = "changeTitle"),
+        @Index(columnList = "personWhoAddChange")
+})
+public class Change implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

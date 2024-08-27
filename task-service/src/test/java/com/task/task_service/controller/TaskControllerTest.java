@@ -7,6 +7,7 @@ import com.task.task_service.models.enums.DateEnums;
 import com.task.task_service.models.enums.PriorityEnums;
 import com.task.task_service.models.enums.TaskCondition;
 import com.task.task_service.models.tasks.Task;
+import com.task.task_service.models.tasks.TaskDTO;
 import com.task.task_service.models.tasks.TaskResponse;
 import com.task.task_service.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,9 +48,15 @@ class TaskControllerTest {
 
     TaskResponse taskResponse2;
 
+    int pageNum;
+    int value;
 
     @BeforeEach
     void setUp() {
+
+        pageNum = 0;
+        value = 10;
+
         objectMapper = new ObjectMapper();
         taskResponse1 = new TaskResponse();
         taskResponse1.setTaskName("TaskName");
@@ -145,9 +152,12 @@ class TaskControllerTest {
 
         String uniqueCode = "eu123";
 
-        when(taskService.getTasksByApp(uniqueCode)).thenReturn(List.of(taskResponse1));
+        when(taskService.getTasksByApp(uniqueCode, pageNum, value)).thenReturn(List.of(taskResponse1));
 
-        ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/tasks", uniqueCode));
+        ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/tasks", uniqueCode)
+                .param("pageNum", String.valueOf(pageNum))
+                .param("value", String.valueOf(value))
+        );
 
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$..taskName").value("TaskName"))
@@ -160,15 +170,15 @@ class TaskControllerTest {
     @Test
     void createNewTask_Created() throws Exception {
         String uniqueCode = "eu123";
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setTaskName("name");
         Task task = new Task();
-        task.setId(1);
-        task.setTaskName("name");
 
-        when(taskService.saveTask(uniqueCode,task)).thenReturn(task);
+        when(taskService.saveTask(uniqueCode,taskDTO)).thenReturn(task);
 
         ResultActions perform = mockMvc.perform(post("/v1/tracker/apps/{uniqueCode}/createTask", uniqueCode)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(task))
+                .content(objectMapper.writeValueAsString(taskDTO))
         );
 
         perform.andExpect(status().isCreated())
@@ -178,8 +188,7 @@ class TaskControllerTest {
     @Test
     void createNewTask_AppNotFound() throws Exception {
         String uniqueCode = "eu123";
-        Task task = new Task();
-        task.setId(1);
+        TaskDTO task = new TaskDTO();
         task.setTaskName("name");
 
         when(taskService.saveTask(uniqueCode,task)).thenThrow(new AppNotFoundException("app not found"));
@@ -194,14 +203,15 @@ class TaskControllerTest {
 
     @Test
     void sortTaskByPriority_Ok_HIGH_PRIORITY() throws Exception {
-
         String uniqueCode = "eu123";
         String enums = "HIGH_PRIORITY";
-        when(taskService.getSortedTasks(uniqueCode,PriorityEnums.HIGH_PRIORITY))
+        when(taskService.getSortedTasks(uniqueCode,PriorityEnums.HIGH_PRIORITY, pageNum, value))
                 .thenReturn(List.of(taskResponse2,taskResponse1));
 
         ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/sortTaskByPriority", uniqueCode)
                 .param("uniqueCode", uniqueCode)
+                .param("pageNum", String.valueOf(pageNum))
+                .param("value", String.valueOf(value))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(enums)
         );
@@ -217,11 +227,13 @@ class TaskControllerTest {
     void sortTaskByDate_Ok_CLOSEST() throws Exception {
         String uniqueCode = "eu123";
         String enums = "CLOSEST";
-        when(taskService.getSortedTaskByDate(uniqueCode,DateEnums.CLOSEST))
+        when(taskService.getSortedTaskByDate(uniqueCode,DateEnums.CLOSEST, pageNum, value))
                 .thenReturn(List.of(taskResponse1,taskResponse2));
 
         ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/sortTaskByDate", uniqueCode)
                 .param("uniqueCode", uniqueCode)
+                .param("pageNum", String.valueOf(pageNum))
+                .param("value", String.valueOf(value))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(enums)
         );

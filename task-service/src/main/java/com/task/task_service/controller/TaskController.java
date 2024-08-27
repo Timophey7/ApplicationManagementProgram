@@ -1,10 +1,11 @@
 package com.task.task_service.controller;
 
 import com.task.task_service.exceptions.AppNotFoundException;
+import com.task.task_service.exceptions.TaskAlreadyExistsException;
 import com.task.task_service.exceptions.TaskNotFoundException;
 import com.task.task_service.models.enums.DateEnums;
 import com.task.task_service.models.enums.PriorityEnums;
-import com.task.task_service.models.tasks.Task;
+import com.task.task_service.models.tasks.TaskDTO;
 import com.task.task_service.models.tasks.TaskResponse;
 import com.task.task_service.service.TaskService;
 import lombok.AccessLevel;
@@ -25,7 +26,11 @@ public class TaskController {
     TaskService taskService;
 
     @PostMapping("/apps/{uniqueCode}/tasks/{taskId}/setCondition")
-    public ResponseEntity<?> setTaskCondition(@PathVariable("taskId") int taskId,@RequestBody String condition){
+    public ResponseEntity<String> setTaskCondition(
+            @PathVariable("uniqueCode") String uniqueCode,
+            @PathVariable("taskId") int taskId,
+            @RequestBody String condition)
+    {
         try {
             taskService.setCondition(taskId, condition);
             return ResponseEntity.ok("success");
@@ -35,7 +40,10 @@ public class TaskController {
     }
 
     @GetMapping("/apps/{uniqueCode}/tasks/{taskId}")
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable("taskId") int taskId){
+    public ResponseEntity<TaskResponse> getTaskById(
+            @PathVariable("uniqueCode") String uniqueCode,
+            @PathVariable("taskId") int taskId)
+    {
         try {
             TaskResponse taskResponseById = taskService.getTaskResponseById(taskId);
             return ResponseEntity.ok(taskResponseById);
@@ -45,45 +53,74 @@ public class TaskController {
     }
 
     @GetMapping("/apps/{uniqueCode}/tasks")
-    public ResponseEntity<?> getAllTasksByApp(@PathVariable("uniqueCode") String uniqueCode){
-        List<TaskResponse> tasksByApp = taskService.getTasksByApp(uniqueCode);
-        return new ResponseEntity<>(
-                tasksByApp,
-                HttpStatus.OK
-        );
+    public ResponseEntity<List<TaskResponse>> getAllTasksByApp(
+            @PathVariable("uniqueCode") String uniqueCode,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("value") int value
+
+    ){
+        try {
+            List<TaskResponse> tasksByApp = taskService.getTasksByApp(uniqueCode, pageNum, value);
+            return new ResponseEntity<>(
+                    tasksByApp,
+                    HttpStatus.OK
+            );
+        }catch (TaskNotFoundException exception){
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/apps/{uniqueCode}/createTask")
-    public ResponseEntity<?> createNewTask(@PathVariable("uniqueCode") String uniqueCode, @RequestBody Task task){
+    public ResponseEntity<String> createNewTask(@PathVariable("uniqueCode") String uniqueCode, @RequestBody TaskDTO task){
         try {
-            Task createdTask = taskService.saveTask(uniqueCode, task);
+            taskService.saveTask(uniqueCode, task);
             return new ResponseEntity<>(
                     "success",
                     HttpStatus.CREATED
             );
         }catch (AppNotFoundException exception){
             return ResponseEntity.notFound().build();
+        }catch (TaskAlreadyExistsException exception){
+            return ResponseEntity.badRequest().body(exception.getMessage());
         }
     }
 
     @GetMapping("/apps/{uniqueCode}/sortTaskByPriority")
-    public ResponseEntity<?> sortTaskByPriority(@PathVariable("uniqueCode") String uniqueCode,@RequestBody String enums){
-        PriorityEnums priorityEnums = PriorityEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTasks(uniqueCode, priorityEnums);
-        return new ResponseEntity<>(
-                taskResponseList,
-                HttpStatus.OK
-        );
+    public ResponseEntity<List<TaskResponse>> sortTaskByPriority(
+            @PathVariable("uniqueCode") String uniqueCode,
+            @RequestBody String enums,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("value") int value
+    ){
+        try {
+            PriorityEnums priorityEnums = PriorityEnums.valueOf(enums);
+            List<TaskResponse> taskResponseList = taskService.getSortedTasks(uniqueCode, priorityEnums, pageNum, value);
+            return new ResponseEntity<>(
+                    taskResponseList,
+                    HttpStatus.OK
+            );
+        }catch (TaskNotFoundException exception){
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/apps/{uniqueCode}/sortTaskByDate")
-    public ResponseEntity<?> sortTaskByDate(@PathVariable("uniqueCode") String uniqueCode,@RequestBody String enums){
-        DateEnums dateEnums = DateEnums.valueOf(enums);
-        List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(uniqueCode, dateEnums);
-        return new ResponseEntity<>(
-                taskResponseList,
-                HttpStatus.OK
-        );
+    public ResponseEntity<List<TaskResponse>> sortTaskByDate(
+            @PathVariable("uniqueCode") String uniqueCode,
+            @RequestBody String enums,
+            @RequestParam("pageNum") int pageNum,
+            @RequestParam("value") int value
+    ){
+        try {
+            DateEnums dateEnums = DateEnums.valueOf(enums);
+            List<TaskResponse> taskResponseList = taskService.getSortedTaskByDate(uniqueCode, dateEnums, pageNum, value);
+            return new ResponseEntity<>(
+                    taskResponseList,
+                    HttpStatus.OK
+            );
+        }catch (TaskNotFoundException exception){
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

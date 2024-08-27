@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-public class TaskRepositoryTest {
+class TaskRepositoryTest {
 
     @Autowired
     private TaskRepository taskRepository;
@@ -29,16 +29,19 @@ public class TaskRepositoryTest {
     private App app;
     private Task task1;
     private Task task2;
+    int offset;
+    int value;
 
     @BeforeEach
     void setUp() {
-
+        offset = 0;
+        value = 10;
         task1 = new Task();
         task1.setTaskName("Task High Priority");
         task1.setPriorityEnums(PriorityEnums.HIGH_PRIORITY);
         task1.setAppUniqueCode("uniqueCode");
         task1.setStartTaskWork(LocalDateTime.of(2024, 8, 1, 12, 45, 12));
-        task1.setEndTaskWork(LocalDateTime.of(2024, 8, 10, 12, 45, 12));
+        task1.setEndTaskWork(LocalDateTime.of(2024, 8, 27, 12, 45, 12));
         task1.setCondition(TaskCondition.IN_TESTING);
         task1.setResponsiblePerson("Alex");
 
@@ -62,28 +65,32 @@ public class TaskRepositoryTest {
 
     @Test
     void sortTaskByHighPriority() {
-        List<Task> sortedTasks = taskRepository.sortTaskByHighPriority("uniqueCode");
+        List<Task> sortedTasks = taskRepository.sortTaskByHighPriority("uniqueCode",offset,value)
+                .orElseThrow();
         assertEquals(2, sortedTasks.size());
         assertEquals("Task High Priority", sortedTasks.get(0).getTaskName());
     }
 
     @Test
     void sortTaskByLowPriority() {
-        List<Task> sortedTasks = taskRepository.sortTaskByLowPriority("uniqueCode");
+        List<Task> sortedTasks = taskRepository.sortTaskByLowPriority("uniqueCode",offset,value)
+                .orElseThrow();
         assertEquals(2, sortedTasks.size());
         assertEquals("Task Low Priority", sortedTasks.get(0).getTaskName());
     }
 
     @Test
     void sortTaskByClosestDate() {
-        List<Task> sortedTasks = taskRepository.sortTaskByClosestDate("uniqueCode");
+        List<Task> sortedTasks = taskRepository.sortTaskByClosestDate("uniqueCode",offset,value)
+                .orElseThrow();
         assertEquals(task1,sortedTasks.get(0));
         assertEquals(2, sortedTasks.size());
     }
 
     @Test
     void sortTaskByDistantDate() {
-        List<Task> sortedTasks = taskRepository.sortTaskByDistantDate("uniqueCode");
+        List<Task> sortedTasks = taskRepository.sortTaskByDistantDate("uniqueCode",offset,value)
+                .orElseThrow();
         assertEquals(task2,sortedTasks.get(0));
         assertEquals(2, sortedTasks.size());
     }

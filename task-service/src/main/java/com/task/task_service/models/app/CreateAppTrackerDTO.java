@@ -7,7 +7,6 @@ import java.util.List;
 @Data
 public class CreateAppTrackerDTO {
 
-    int appId;
     String name;
     String gitHubUserName;
     String description;

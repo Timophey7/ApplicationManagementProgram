@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.app.CreateAppTrackerDTO;
 import com.task.task_service.service.AppService;
-import org.junit.jupiter.api.BeforeEach;
+import io.github.bucket4j.Bucket;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,15 +37,14 @@ class AppControllerTest {
     @MockBean
     private AppService appService;
 
-    @BeforeEach
-    void setUp() {
-    }
+    @MockBean
+    private Bucket bucket;
+
 
     @Test
     void createAppTracker_Created() throws Exception {
 
         CreateAppTrackerDTO appTrackerDTO = new CreateAppTrackerDTO();
-        appTrackerDTO.setAppId(1);
         appTrackerDTO.setName("Test");
         appTrackerDTO.setGitHubUserName("TestUserName");
         appTrackerDTO.setDescription("description");
@@ -55,6 +54,7 @@ class AppControllerTest {
         app.setName("Test");
         app.setUniqueCode("uniqueCode");
 
+        when(bucket.tryConsume(1)).thenReturn(true);
         when(appService.createAppTrackerByTrackerDTO(appTrackerDTO)).thenReturn(app);
 
         ResultActions perform = mockMvc.perform(post("/v1/tracker/createAppTracker")
@@ -71,9 +71,7 @@ class AppControllerTest {
 
     @Test
     void createAppTracker_BadRequest_UserNotExists() throws Exception {
-
         CreateAppTrackerDTO appTrackerDTO = new CreateAppTrackerDTO();
-        appTrackerDTO.setAppId(1);
         appTrackerDTO.setName("Test");
         appTrackerDTO.setGitHubUserName("TestUserName");
         appTrackerDTO.setDescription("description");
@@ -83,6 +81,7 @@ class AppControllerTest {
         app.setName("Test");
         app.setUniqueCode("uniqueCode");
 
+        when(bucket.tryConsume(1)).thenReturn(true);
         when(appService.createAppTrackerByTrackerDTO(appTrackerDTO))
                 .thenThrow(new UserPrincipalNotFoundException("user not exists"));
 
@@ -95,5 +94,23 @@ class AppControllerTest {
                 .andExpect(content().string("user not exists"))
                 .andDo(print());
 
+    }
+
+
+    @Test
+    void createAppTracker_TooManyRequests() throws Exception {
+        CreateAppTrackerDTO appTrackerDTO = new CreateAppTrackerDTO();
+        appTrackerDTO.setName("Test");
+        appTrackerDTO.setGitHubUserName("TestUserName");
+        appTrackerDTO.setDescription("description");
+
+        when(bucket.tryConsume(1)).thenReturn(false);
+
+        ResultActions perform = mockMvc.perform(post("/v1/tracker/createAppTracker")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(appTrackerDTO))
+        );
+
+        perform.andExpect(status().isTooManyRequests());
     }
 }

@@ -23,7 +23,7 @@ public class GitHubIntegrationController {
     ChangeService changeService;
 
     @GetMapping("/apps/{uniqueCode}/getChanges")
-    public ResponseEntity<?> getChanges(@PathVariable("uniqueCode") String uniqueCode){
+    public ResponseEntity<List<ChangeResponse>> getChanges(@PathVariable("uniqueCode") String uniqueCode){
         try {
             changeService.loadAppChanges(uniqueCode);
             List<ChangeResponse> changes = changeService.getChanges(uniqueCode);

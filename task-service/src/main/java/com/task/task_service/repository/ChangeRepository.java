@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface ChangeRepository extends JpaRepository<Change,Integer> {
 
+    boolean existsByChangeTitle(String changeTitle);
+
     Change findChangeByChangeTitle(String changeTitle);
 
     List<Change> getChangesByAppUniqueCode(String uniqueCode);

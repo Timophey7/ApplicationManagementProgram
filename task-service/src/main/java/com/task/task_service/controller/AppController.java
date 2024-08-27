@@ -1,8 +1,10 @@
 package com.task.task_service.controller;
 
+import com.task.task_service.exceptions.AppAlreadyExistsException;
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.app.CreateAppTrackerDTO;
 import com.task.task_service.service.AppService;
+import io.github.bucket4j.Bucket;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +24,30 @@ import java.nio.file.attribute.UserPrincipalNotFoundException;
 public class AppController {
 
     AppService appService;
-
+    Bucket bucket;
 
     @PostMapping("/createAppTracker")
-    public ResponseEntity<?> createAppTracker(@Valid @RequestBody CreateAppTrackerDTO appTrackerDTO, BindingResult result){
+    public ResponseEntity<Object> createAppTracker(@Valid @RequestBody CreateAppTrackerDTO appTrackerDTO, BindingResult result){
         if (result.hasErrors()){
             return ResponseEntity.badRequest().build();
         }
-
-        try {
-            App appTrackerByTrackerDTO = appService.createAppTrackerByTrackerDTO(appTrackerDTO);
+        if (bucket.tryConsume(1)) {
+            try {
+                App appTrackerByTrackerDTO = appService.createAppTrackerByTrackerDTO(appTrackerDTO);
+                return new ResponseEntity<>(
+                        appTrackerByTrackerDTO,
+                        HttpStatus.CREATED
+                );
+            } catch (UserPrincipalNotFoundException exception) {
+                return ResponseEntity.badRequest().body("user not exists");
+            } catch (AppAlreadyExistsException exception) {
+                return ResponseEntity.badRequest().body(exception.getMessage());
+            }
+        }else {
             return new ResponseEntity<>(
-                    appTrackerByTrackerDTO,
-                    HttpStatus.CREATED
+                    "too many requests",
+                    HttpStatus.TOO_MANY_REQUESTS
             );
-        }catch (UserPrincipalNotFoundException exception){
-            return ResponseEntity.badRequest().body("user not exists");
         }
     }
 

@@ -3,7 +3,6 @@ package com.task.task_service.controller;
 import com.task.task_service.exceptions.AppNotFoundException;
 import com.task.task_service.models.change.ChangeResponse;
 import com.task.task_service.service.ChangeService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,10 +33,6 @@ class GitHubIntegrationControllerTest {
     @MockBean
     ChangeService changeService;
 
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void getChanges_Success() throws Exception {

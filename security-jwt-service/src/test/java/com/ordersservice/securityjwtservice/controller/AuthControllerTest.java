@@ -52,7 +52,6 @@ class AuthControllerTest {
         registerRequest = new RegisterRequest();
         registerRequest.setEmail("email@email.com");
         registerRequest.setPassword("password");
-        registerRequest.setId(1);
         authenticationResponse = new AuthenticationResponse();
         authenticationResponse.setToken("tokenTest");
         authenticateRequest = new AuthenticateRequest();

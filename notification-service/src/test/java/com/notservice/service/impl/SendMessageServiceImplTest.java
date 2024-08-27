@@ -33,7 +33,7 @@ class SendMessageServiceImplTest {
     void sendMessage() throws MessagingException {
         MessageResponse messageResponse = new MessageResponse();
         messageResponse.setEmail("test@gmail.com");
-        messageResponse.setApp_id(1);
+        messageResponse.setUniqueCode("uniqueCode");
 
         sendMessageService.sendMessage(messageResponse);
 

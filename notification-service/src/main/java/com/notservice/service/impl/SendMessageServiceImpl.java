@@ -21,20 +21,22 @@ public class SendMessageServiceImpl implements SendMessageService {
     @Override
     public void sendMessage(MessageResponse messageResponse) {
         try {
-            String htmlContent = "<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<head>\n" +
-                    "  <title>Приветственное письмо</title>\n" +
-                    "</head>\n" +
-                    "<body>\n" +
-                    "  <p>Добро пожаловать!</p>\n" +
-                    "  <a href=\"[MessageResponse]\">\n" +
-                    "    <button>Узнать больше</button>\n" +
-                    "  </a>\n" +
-                    "</body>\n" +
-                    "</html>";
+            String htmlContent = """
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Приветственное письмо</title>
+                    </head>
+                    <body>
+                        <p>Добро пожаловать!</p>
+                        <a href=[MessageResponse]>
+                            <button>Узнать больше</button>
+                        </a>
+                    </body>
+                    </html>
+                    """;
 
-            String url = "http:localhost:8080/apps/"+messageResponse.getApp_id()+"/tasks";
+            String url = "http//:localhost:8080/apps/"+messageResponse.getUniqueCode()+"/tasks";
             htmlContent = htmlContent.replace("[MessageResponse]", url);
             helper.setTo(messageResponse.getEmail());
             helper.setFrom("timopheyonisenko@gmail.com");
@@ -42,7 +44,7 @@ public class SendMessageServiceImpl implements SendMessageService {
             helper.setSubject("invite in app");
             mailSender.send(helper.getMimeMessage());
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 }

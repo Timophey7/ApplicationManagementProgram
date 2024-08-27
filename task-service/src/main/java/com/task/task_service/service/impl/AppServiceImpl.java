@@ -1,5 +1,6 @@
 package com.task.task_service.service.impl;
 
+import com.task.task_service.exceptions.AppAlreadyExistsException;
 import com.task.task_service.models.MessageResponse;
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.app.AppUser;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +28,8 @@ import java.util.List;
 public class AppServiceImpl implements AppService {
 
     @Value("${security-service.host}")
-    private String securityHost;
+    String securityHost;
 
-    final UniqueCodeGenerator codeGenerator;
     final WebClient.Builder webClientBuilder;
     final AppRepository appRepository;
     final AppUserRepository appUserRepository;
@@ -36,37 +37,48 @@ public class AppServiceImpl implements AppService {
 
 
     @Override
-    public App createAppTrackerByTrackerDTO(CreateAppTrackerDTO appTrackerDTO) throws UserPrincipalNotFoundException {
-        App app = App.builder()
-                .id(appTrackerDTO.getAppId())
-                .name(appTrackerDTO.getName())
-                .uniqueCode(codeGenerator.generateCode(appTrackerDTO.getName()))
-                .gitHubUserName(appTrackerDTO.getGitHubUserName())
-                .description(appTrackerDTO.getDescription())
-                .build();
-
-        checkUsersEmails(appTrackerDTO.getEmails(),appTrackerDTO.getAppId());
-
-        sendMessagesToUsers(appTrackerDTO.getEmails(),appTrackerDTO.getAppId());
-
+    public synchronized App createAppTrackerByTrackerDTO(CreateAppTrackerDTO appTrackerDTO) throws UserPrincipalNotFoundException, AppAlreadyExistsException {
+        if (appAlreadyExists(appTrackerDTO)){
+            throw new AppAlreadyExistsException("app already exists");
+        }
+        App app = mapToApp(appTrackerDTO);
+        checkUsersEmails(appTrackerDTO.getEmails());
+        sendMessagesToUsers(appTrackerDTO.getEmails(),app.getUniqueCode());
         List<String> emails = appTrackerDTO.getEmails();
-
         appRepository.save(app);
+        saveUsersInApp(app,emails);
+        return app;
+    }
+
+    public boolean appAlreadyExists(CreateAppTrackerDTO createAppTrackerDTO){
+        App app = appRepository.findAppByNameAndGitHubUserName(createAppTrackerDTO.getName(), createAppTrackerDTO.getGitHubUserName())
+                .orElse(null);
+        return app != null ;
+    }
+
+    private void saveUsersInApp(App app, List<String> emails){
         emails.stream()
                 .forEach(el -> {
-                    if (emails.stream().findFirst().orElse(null) == el){
+                    if (emails.stream().findFirst().orElse(null).equals(el)){
                         appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(),el, Role.ADMIN));
                     }else {
                         appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(), el, Role.DEVELOPER));
                     }
                 });
+    }
 
-        return app;
+    private App mapToApp(CreateAppTrackerDTO appTrackerDTO){
+        return  App.builder()
+                .name(appTrackerDTO.getName())
+                .uniqueCode(UniqueCodeGenerator.generateCode(appTrackerDTO.getName()))
+                .gitHubUserName(appTrackerDTO.getGitHubUserName())
+                .description(appTrackerDTO.getDescription())
+                .build();
     }
 
 
     @Override
-    public void checkUsersEmails(List<String> emails, int appId) throws UserPrincipalNotFoundException {
+    public void checkUsersEmails(List<String> emails) throws UserPrincipalNotFoundException {
 
         for (String email : emails){
             String result = webClientBuilder.build().post()
@@ -75,7 +87,7 @@ public class AppServiceImpl implements AppService {
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            if (result.equals("notExists")){
+            if (Objects.equals(result, "notExists")) {
                 throw new UserPrincipalNotFoundException("user not found");
             }
         }
@@ -84,20 +96,20 @@ public class AppServiceImpl implements AppService {
 
 
     @Override
-    public void sendMessagesToUsers(List<String> emails, int appId) {
+    public void sendMessagesToUsers(List<String> emails,String uniqueCode) {
         for (String email : emails){
             try {
-                sendMessageToKafkaTopic(email, appId);
+                sendMessageToKafkaTopic(email, uniqueCode);
             }catch (Exception exception){
                 exception.printStackTrace();
             }
         }
     }
 
-    public void sendMessageToKafkaTopic(String email,int appId){
+    public void sendMessageToKafkaTopic(String email,String uniqueCode){
         MessageResponse messageResponse = new MessageResponse();
         messageResponse.setEmail(email);
-        messageResponse.setApp_id(appId);
+        messageResponse.setUniqueCode(uniqueCode);
         kafkaTemplate.send("invite",messageResponse);
     }
 

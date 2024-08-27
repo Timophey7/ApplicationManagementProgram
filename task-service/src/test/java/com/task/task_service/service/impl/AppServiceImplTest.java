@@ -1,13 +1,12 @@
 package com.task.task_service.service.impl;
 
+import com.task.task_service.exceptions.AppAlreadyExistsException;
 import com.task.task_service.models.MessageResponse;
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.app.AppUser;
 import com.task.task_service.models.app.CreateAppTrackerDTO;
 import com.task.task_service.repository.AppRepository;
 import com.task.task_service.repository.AppUserRepository;
-import com.task.task_service.service.utils.UniqueCodeGenerator;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,9 +30,6 @@ class AppServiceImplTest {
     private AppServiceImpl appService;
 
     @Mock
-    private UniqueCodeGenerator codeGenerator;
-
-    @Mock
     private WebClient.Builder webClientBuilder;
 
     @Mock
@@ -49,15 +45,9 @@ class AppServiceImplTest {
     private String securityHost;
 
 
-    @BeforeEach
-    public void setUp() {
-
-    }
-
     @Test
-    public void testCreateAppTrackerByTrackerDTO() throws UserPrincipalNotFoundException {
+    void testCreateAppTrackerByTrackerDTO() throws UserPrincipalNotFoundException, AppAlreadyExistsException {
         CreateAppTrackerDTO appTrackerDTO = new CreateAppTrackerDTO();
-        appTrackerDTO.setAppId(1);
         appTrackerDTO.setName("Test App");
         appTrackerDTO.setGitHubUserName("testuser");
         appTrackerDTO.setDescription("Test App Description");
@@ -65,7 +55,6 @@ class AppServiceImplTest {
 
 
         WebClient mockWebClient = mock(WebClient.class);
-        WebClient.Builder mockBuilder = mock(WebClient.Builder.class);
         WebClient.RequestHeadersUriSpec mockUriSpec = mock(WebClient.RequestHeadersUriSpec.class);
         WebClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
         WebClient.ResponseSpec mockResponseSpec = mock(WebClient.ResponseSpec.class);
@@ -88,11 +77,10 @@ class AppServiceImplTest {
     }
 
     @Test
-    public void testCheckUsersEmails_UserNotFound() {
+    void testCheckUsersEmails_UserNotFound() {
         List<String> emails = Arrays.asList("user3@example.com");
 
         WebClient mockWebClient = mock(WebClient.class);
-        WebClient.Builder mockBuilder = mock(WebClient.Builder.class);
         WebClient.RequestHeadersUriSpec mockUriSpec = mock(WebClient.RequestHeadersUriSpec.class);
         WebClient.RequestBodyUriSpec mockRequestBodyUriSpec = mock(WebClient.RequestBodyUriSpec.class);
         WebClient.ResponseSpec mockResponseSpec = mock(WebClient.ResponseSpec.class);
@@ -107,16 +95,16 @@ class AppServiceImplTest {
         when(webClientBuilder.build()).thenReturn(mockWebClient);
 
         assertThrows(UserPrincipalNotFoundException.class, () -> {
-            appService.checkUsersEmails(emails, 1);
+            appService.checkUsersEmails(emails);
         });
     }
 
     @Test
-    public void testSendMessagesToUsers() {
+    void testSendMessagesToUsers() {
         List<String> emails = Arrays.asList("user1@example.com", "user2@example.com");
-        int appId = 1;
+        String uniqueCode = "werty123";
 
-        appService.sendMessagesToUsers(emails, appId);
+        appService.sendMessagesToUsers(emails,uniqueCode);
 
         verify(kafkaTemplate, times(2)).send(any(String.class), any(MessageResponse.class));
     }

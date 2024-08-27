@@ -53,14 +53,12 @@ class AuthenticationServiceTest {
     @Test
     void register() {
         RegisterRequest registerRequest = new RegisterRequest(
-                1,
                 "test",
                 "testL",
                 "test@test.com",
                 "password123"
         );
         User user = User.builder()
-                .id(registerRequest.getId())
                 .firstname(registerRequest.getFirstname())
                 .lastname(registerRequest.getLastname())
                 .email(registerRequest.getEmail())

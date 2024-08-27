@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-@Table(name = "apps")
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class App {
+@Table(name = "apps",indexes = {
+        @Index(columnList = "name"),
+        @Index(columnList = "uniqueCode")
+})
+public class App implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

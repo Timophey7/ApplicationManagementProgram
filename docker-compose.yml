@@ -22,12 +22,24 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://kafka:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - app
+
+  redis:
+    image: redis:7.2-rc-alpine
+    networks:
+      - app
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ZmRlZWRhc3Nl
+    volumes:
+      - cache:/data
+    restart: always
 
   maildev:
     container_name: maildev
@@ -36,7 +48,7 @@ services:
       - "1080:1080"
 
   api-gateway:
-    image: api-gateway:latest
+    image: app-api-gateway:latest
     environment:
       DISCOVERY_HOST: discovery
       TASK_SERVICE_HOST: task-service
@@ -70,6 +82,7 @@ services:
       KAFKA_HOST: kafka
       HOST: some-mysql
       SECURITY_SERVICE_HOST: security-service
+      REDIS_HOST: redis
     ports:
       - "8080:8080"
     networks:
@@ -136,5 +149,6 @@ networks:
   app:
 
 volumes:
+  cache: {}
   db:
     driver: local

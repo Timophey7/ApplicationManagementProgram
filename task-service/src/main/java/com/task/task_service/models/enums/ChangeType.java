@@ -5,9 +5,9 @@ public enum ChangeType {
     ISSUES("issues"),
     PULL_REQUESTS("pulls");
 
-    private final String changeType;
+    private final String type;
 
     ChangeType(String changeType) {
-        this.changeType = changeType;
+        this.type = changeType;
     }
 }

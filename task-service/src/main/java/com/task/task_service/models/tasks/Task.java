@@ -7,16 +7,19 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-@Table(name = "app_tasks")
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Task {
+@Table(name = "app_tasks",indexes = {
+        @Index(columnList = "appUniqueCode")
+})
+public class Task implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

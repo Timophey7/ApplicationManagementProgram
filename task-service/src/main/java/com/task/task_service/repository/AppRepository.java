@@ -9,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface AppRepository extends JpaRepository<App,Integer> {
 
+    Optional<App> findAppByNameAndGitHubUserName(String name,String userName);
+
     Optional<App> findAppByUniqueCode(String uniqueCode);
 
 }

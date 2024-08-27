@@ -1,11 +1,13 @@
 package com.task.task_service.service.impl;
 
 import com.task.task_service.exceptions.AppNotFoundException;
+import com.task.task_service.exceptions.TaskAlreadyExistsException;
 import com.task.task_service.exceptions.TaskNotFoundException;
 import com.task.task_service.models.app.App;
 import com.task.task_service.models.enums.PriorityEnums;
 import com.task.task_service.models.enums.TaskCondition;
 import com.task.task_service.models.tasks.Task;
+import com.task.task_service.models.tasks.TaskDTO;
 import com.task.task_service.models.tasks.TaskResponse;
 import com.task.task_service.repository.AppRepository;
 import com.task.task_service.repository.TaskRepository;
@@ -36,14 +38,17 @@ class TaskServiceImplTest {
     private AppRepository appRepository;
 
     private static final String UNIQUE_CODE = "uniqueCode";
+    int pageNum;
+    int value;
 
     @BeforeEach
     public void setUp() {
-
+        pageNum = 0;
+        value = 10;
     }
 
     @Test
-    public void testGetTasksByApp() {
+    void testGetTasksByApp() throws TaskNotFoundException {
         Task task1 = new Task();
         task1.setTaskName("Task 1");
         task1.setDescription("Description 1");
@@ -54,9 +59,9 @@ class TaskServiceImplTest {
         task2.setDescription("Description 2");
         task2.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
 
-        when(taskRepository.findAllTasksByAppUniqueCode(UNIQUE_CODE)).thenReturn(Arrays.asList(task1, task2));
+        when(taskRepository.getAllAppTasks(pageNum,value,UNIQUE_CODE)).thenReturn(Optional.of(Arrays.asList(task1, task2)));
 
-        List<TaskResponse> result = taskService.getTasksByApp(UNIQUE_CODE);
+        List<TaskResponse> result = taskService.getTasksByApp(UNIQUE_CODE, pageNum, value);
 
         assertEquals(2, result.size());
         assertEquals("Task 1", result.get(0).getTaskName());
@@ -64,54 +69,54 @@ class TaskServiceImplTest {
     }
 
     @Test
-    public void testGetSortedTasks_LowPriority() {
+    void testGetSortedTasks_LowPriority() throws TaskNotFoundException {
         Task task1 = new Task();
         task1.setTaskName("Low Priority Task 1");
         task1.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
 
-        when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE)).thenReturn(Arrays.asList(task1));
+        when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE,pageNum,value)).thenReturn(Optional.of(Arrays.asList(task1)));
 
-        List<TaskResponse> result = taskService.getSortedTasks(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY);
+        List<TaskResponse> result = taskService.getSortedTasks(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, pageNum, value);
 
         assertEquals(1, result.size());
         assertEquals("Low Priority Task 1", result.get(0).getTaskName());
     }
 
     @Test
-    public void testSaveTask_AppNotFound() {
-        Task task = new Task();
-        task.setTaskName("New Task");
+    void testSaveTask_AppNotFound() {
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setTaskName("New Task");
 
         when(appRepository.findAppByUniqueCode(UNIQUE_CODE)).thenReturn(Optional.empty());
 
-        assertThrows(AppNotFoundException.class, () -> taskService.saveTask(UNIQUE_CODE, task));
+        assertThrows(AppNotFoundException.class, () -> taskService.saveTask(UNIQUE_CODE, taskDTO));
     }
 
     @Test
-    public void testSaveTask_Success() throws AppNotFoundException {
+    void testSaveTask_Success() throws AppNotFoundException, TaskAlreadyExistsException {
         App app = new App();
         app.setUniqueCode(UNIQUE_CODE);
 
-        Task task = new Task();
-        task.setTaskName("New Task");
+        TaskDTO taskDTO = new TaskDTO();
+        taskDTO.setTaskName("New Task");
 
         when(appRepository.findAppByUniqueCode(UNIQUE_CODE)).thenReturn(Optional.of(app));
 
-        Task result = taskService.saveTask(UNIQUE_CODE, task);
+        Task result = taskService.saveTask(UNIQUE_CODE, taskDTO);
 
         assertEquals("New Task", result.getTaskName());
-        verify(taskRepository).save(task);
+        verify(taskRepository).save(any(Task.class));
     }
 
     @Test
-    public void testSetCondition_TaskNotFound() {
+    void testSetCondition_TaskNotFound() {
         when(taskRepository.findById(1)).thenReturn(Optional.empty());
 
         assertThrows(TaskNotFoundException.class, () -> taskService.setCondition(1, "COMPLETE"));
     }
 
     @Test
-    public void testSetCondition_Success() throws TaskNotFoundException {
+    void testSetCondition_Success() throws TaskNotFoundException {
         Task task = new Task();
         task.setId(1);
 
@@ -124,14 +129,14 @@ class TaskServiceImplTest {
     }
 
     @Test
-    public void testGetTaskResponseById_TaskNotFound() {
+    void testGetTaskResponseById_TaskNotFound() {
         when(taskRepository.findById(1)).thenReturn(Optional.empty());
 
         assertThrows(TaskNotFoundException.class, () -> taskService.getTaskResponseById(1));
     }
 
     @Test
-    public void testGetTaskResponseById_Success() throws TaskNotFoundException {
+    void testGetTaskResponseById_Success() throws TaskNotFoundException {
         Task task = new Task();
         task.setId(1);
         task.setTaskName("Task by ID");
