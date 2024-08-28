@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AppService {
 
-    void sendMessagesToUsers(List<String> emails,String uniqueCode);
+    void sendMessagesToUsers(List<String> emails, String uniqueCode);
 
     void checkUsersEmails(List<String> emails) throws UserPrincipalNotFoundException;
 

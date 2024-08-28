@@ -47,66 +47,67 @@ services:
     ports:
       - "1080:1080"
 
-  api-gateway:
-    image: app-api-gateway:latest
-    environment:
-      DISCOVERY_HOST: discovery
-      TASK_SERVICE_HOST: task-service
-      SECURITY_SERVICE_HOST: security-service
-    networks:
-      - app
-    ports:
-      - "8089:8089"
-
-
-
-  notification-service:
-    image: notification-service:latest
-    environment:
-      KAFKA_HOST: kafka
-      MAILDEV_HOST: maildev
-      MAILDEV_PORT: 1025
-      DISCOVERY_HOST: discovery
-    ports:
-      - "8087:8087"
-    networks:
-      - app
-    depends_on:
-      - kafka
-
-
-  task-service:
-    image: task-service:latest
-    environment:
-      DISCOVERY_HOST: discovery
-      KAFKA_HOST: kafka
-      HOST: some-mysql
-      SECURITY_SERVICE_HOST: security-service
-      REDIS_HOST: redis
-    ports:
-      - "8080:8080"
-    networks:
-      - app
-    restart:
-      always
-    depends_on:
-      - kafka
-      - mysql
-      - discovery-service
-
-  security-service:
-    container_name: security-service
-    image: security-service:latest
-    environment:
-      HOST: some-postgres
-      DISCOVERY_HOST: discovery
-    networks:
-      - app
-    ports:
-      - "8085:8085"
-    depends_on:
-      - discovery-service
-      - postgres
+#  api-gateway:
+#    image: app-api-gateway:latest
+#    environment:
+#      DISCOVERY_HOST: discovery
+#      TASK_SERVICE_HOST: task-service
+#      SECURITY_SERVICE_HOST: security-service
+#    networks:
+#      - app
+#    ports:
+#      - "8089:8089"
+#
+#
+#
+#  notification-service:
+#    image: notification-service:latest
+#    environment:
+#      KAFKA_HOST: kafka
+#      MAILDEV_HOST: maildev
+#      MAILDEV_PORT: 1025
+#      DISCOVERY_HOST: discovery
+#    ports:
+#      - "8087:8087"
+#    networks:
+#      - app
+#    depends_on:
+#      - kafka
+#
+#
+#  task-service:
+#    image: task-service:latest
+#    environment:
+#      DISCOVERY_HOST: discovery
+#      KAFKA_HOST: kafka
+#      HOST: some-mysql
+#      SECURITY_SERVICE_HOST: security-service
+#      REDIS_HOST: redis
+#      GITHUB_AUTH_TOKEN: yourToken
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - app
+#    restart:
+#      always
+#    depends_on:
+#      - kafka
+#      - mysql
+#      - discovery-service
+#
+#  security-service:
+#    container_name: security-service
+#    image: security-service:latest
+#    environment:
+#      HOST: some-postgres
+#      DISCOVERY_HOST: discovery
+#    networks:
+#      - app
+#    ports:
+#      - "8085:8085"
+#    depends_on:
+#      - discovery-service
+#      - postgres
 
   postgres:
     container_name: some-postgres
@@ -122,28 +123,28 @@ services:
     ports:
       - "5432:5432"
 
-  mysql:
-    container_name: some-mysql
-    image: mysql/mysql-server:5.7
-    environment:
-      MYSQL_DATABASE: controloftask
-      MYSQL_ROOT_PASSWORD: test
-      MYSQL_ROOT_HOST: '%'
-    ports:
-      - "3306:3306"
-    networks:
-      - app
-    volumes:
-      - ./mysql-db:/var/lib/mysql
-    restart: always
-
-  discovery-service:
-    container_name: discovery
-    image: discovery-service:latest
-    ports:
-      - "8761:8761"
-    networks:
-      - app
+#  mysql:
+#    container_name: some-mysql
+#    image: mysql/mysql-server:5.7
+#    environment:
+#      MYSQL_DATABASE: controloftask
+#      MYSQL_ROOT_PASSWORD: test
+#      MYSQL_ROOT_HOST: '%'
+#    ports:
+#      - "3306:3306"
+#    networks:
+#      - app
+#    volumes:
+#      - ./mysql-db:/var/lib/mysql
+#    restart: always
+#
+#  discovery-service:
+#    container_name: discovery
+#    image: discovery-service:latest
+#    ports:
+#      - "8761:8761"
+#    networks:
+#      - app
 
 networks:
   app:

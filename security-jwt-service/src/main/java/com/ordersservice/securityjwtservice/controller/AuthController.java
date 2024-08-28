@@ -19,21 +19,21 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest registerRequest
-    ){
+    ) {
         return ResponseEntity.ok(authenticationService.register(registerRequest));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
             @RequestBody AuthenticateRequest authenticateRequest
-    ){
+    ) {
         return ResponseEntity.ok(authenticationService.authenticate(authenticateRequest));
     }
 
     @PostMapping("/userExists")
-    public ResponseEntity<String> userExists(@RequestBody String email){
+    public ResponseEntity<String> userExists(@RequestBody String email) {
         boolean userExists = authenticationService.checkUserExists(email);
-        if (userExists){
+        if (userExists) {
             return ResponseEntity.ok("exists");
         }
         return ResponseEntity.ok("notExists");

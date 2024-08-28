@@ -18,13 +18,13 @@ public interface TaskService {
 
     List<TaskResponse> getTasksByApp(String uniqueCode, int pageNum, int value) throws TaskNotFoundException;
 
-    List<TaskResponse> getSortedTasks(String uniqueCode, PriorityEnums enums, int pageNum, int value) throws TaskNotFoundException;
+    List<TaskResponse> getTasksSortedByPriority(String uniqueCode, PriorityEnums enums, int pageNum, int value) throws TaskNotFoundException;
 
-    List<TaskResponse> getSortedTaskByDate(String uniqueCode, DateEnums enums, int pageNum, int value) throws TaskNotFoundException;
+    List<TaskResponse> getTasksSortedByDate(String uniqueCode, DateEnums enums, int pageNum, int value) throws TaskNotFoundException;
 
     Task saveTask(String uniqueCode, TaskDTO task) throws AppNotFoundException, TaskAlreadyExistsException;
 
-    void setCondition(int taskId,String condition) throws TaskNotFoundException;
+    void setCondition(int taskId, String condition) throws TaskNotFoundException;
 
     TaskResponse getTaskResponseById(int taskId) throws TaskNotFoundException;
 }

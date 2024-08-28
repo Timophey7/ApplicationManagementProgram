@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "app_changes",indexes = {
+@Table(name = "app_changes", indexes = {
         @Index(columnList = "changeTitle"),
         @Index(columnList = "personWhoAddChange")
 })

@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class KafkaListenerService {
 
     SendMessageService sendMessageService;
 
-    @KafkaListener(topics = "invite",groupId = "messages")
-    public void listen(MessageResponse messageResponse){
+    @KafkaListener(topics = "invite", groupId = "messages")
+    public void listen(MessageResponse messageResponse) {
         sendMessageService.sendMessage(messageResponse);
     }
 

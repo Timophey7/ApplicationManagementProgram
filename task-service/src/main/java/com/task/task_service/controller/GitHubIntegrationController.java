@@ -17,18 +17,18 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/tracker")
-@FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GitHubIntegrationController {
 
     ChangeService changeService;
 
     @GetMapping("/apps/{uniqueCode}/getChanges")
-    public ResponseEntity<List<ChangeResponse>> getChanges(@PathVariable("uniqueCode") String uniqueCode){
+    public ResponseEntity<List<ChangeResponse>> getChanges(@PathVariable("uniqueCode") String uniqueCode) {
         try {
             changeService.loadAppChanges(uniqueCode);
             List<ChangeResponse> changes = changeService.getChanges(uniqueCode);
             return ResponseEntity.ok(changes);
-        }catch (AppNotFoundException exception){
+        } catch (AppNotFoundException exception) {
             return ResponseEntity.notFound().build();
         }
 

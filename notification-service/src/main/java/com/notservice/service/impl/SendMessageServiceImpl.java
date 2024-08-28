@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SendMessageServiceImpl implements SendMessageService {
 
     JavaMailSender mailSender;
@@ -36,11 +36,11 @@ public class SendMessageServiceImpl implements SendMessageService {
                     </html>
                     """;
 
-            String url = "http//:localhost:8080/apps/"+messageResponse.getUniqueCode()+"/tasks";
+            String url = "http//:localhost:8080/apps/" + messageResponse.getUniqueCode() + "/tasks";
             htmlContent = htmlContent.replace("[MessageResponse]", url);
             helper.setTo(messageResponse.getEmail());
             helper.setFrom("timopheyonisenko@gmail.com");
-            helper.setText(htmlContent,true);
+            helper.setText(htmlContent, true);
             helper.setSubject("invite in app");
             mailSender.send(helper.getMimeMessage());
         } catch (MessagingException e) {

@@ -18,13 +18,13 @@ public class MailSenderConfig {
     private int maildevPort;
 
     @Bean
-    public MimeMessage mimeMessage(){
+    public MimeMessage mimeMessage() {
         return mailSender().createMimeMessage();
     }
 
     @Bean
-    public MimeMessageHelper helper(){
-        return new MimeMessageHelper(mimeMessage(),"utf-8");
+    public MimeMessageHelper helper() {
+        return new MimeMessageHelper(mimeMessage(), "utf-8");
     }
 
     @Bean

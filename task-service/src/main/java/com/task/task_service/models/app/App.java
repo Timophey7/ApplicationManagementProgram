@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "apps",indexes = {
+@Table(name = "apps", indexes = {
         @Index(columnList = "name"),
         @Index(columnList = "uniqueCode")
 })

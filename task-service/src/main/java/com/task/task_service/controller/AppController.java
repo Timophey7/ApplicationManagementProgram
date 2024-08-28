@@ -19,7 +19,7 @@ import java.nio.file.attribute.UserPrincipalNotFoundException;
 
 @RestController
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequestMapping("/v1/tracker")
 public class AppController {
 
@@ -27,8 +27,8 @@ public class AppController {
     Bucket bucket;
 
     @PostMapping("/createAppTracker")
-    public ResponseEntity<Object> createAppTracker(@Valid @RequestBody CreateAppTrackerDTO appTrackerDTO, BindingResult result){
-        if (result.hasErrors()){
+    public ResponseEntity<Object> createAppTracker(@Valid @RequestBody CreateAppTrackerDTO appTrackerDTO, BindingResult result) {
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().build();
         }
         if (bucket.tryConsume(1)) {
@@ -43,7 +43,7 @@ public class AppController {
             } catch (AppAlreadyExistsException exception) {
                 return ResponseEntity.badRequest().body(exception.getMessage());
             }
-        }else {
+        } else {
             return new ResponseEntity<>(
                     "too many requests",
                     HttpStatus.TOO_MANY_REQUESTS

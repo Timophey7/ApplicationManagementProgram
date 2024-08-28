@@ -1,6 +1,6 @@
 package com.task.task_service.exceptions;
 
-public class TaskNotFoundException extends Exception{
+public class TaskNotFoundException extends Exception {
 
     public TaskNotFoundException(String message) {
         super(message);

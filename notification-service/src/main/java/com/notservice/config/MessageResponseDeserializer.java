@@ -18,14 +18,14 @@ public class MessageResponseDeserializer implements Deserializer<MessageResponse
 
     @Override
     public MessageResponse deserialize(String s, byte[] bytes) {
-        if (bytes == null){
+        if (bytes == null) {
             return null;
         }
 
-        try{
+        try {
             return objectMapper.readValue(bytes, MessageResponse.class);
-        }catch (Exception e){
-            throw new SerializationException("exception during deserialization",e);
+        } catch (Exception e) {
+            throw new SerializationException("exception during deserialization", e);
         }
     }
 

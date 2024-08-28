@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.SimpleValueWrapper;
@@ -35,22 +36,24 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ChangeServiceImpl implements ChangeService {
     RestTemplate restTemplate;
     AppRepository appRepository;
     ChangeRepository changeRepository;
     CacheManager cacheManager;
+    ModelMapper modelMapper;
 
-    static String GITHUB_URL = "https://api.github.com/repos/";
+    private static String githubUrl = "https://api.github.com/repos/";
+
     @Value("${github.auth.token}")
-    static String AUTH_TOKEN;
+    private static String authToken;
 
     @Override
     public List<ChangeResponse> getChanges(String uniqueCode) {
 
         List<Change> changesByAppUniqueCode = changeRepository.getChangesByAppUniqueCode(uniqueCode);
-        log.info("result changes: "+changesByAppUniqueCode);
+        log.info("result changes: " + changesByAppUniqueCode);
         return changesByAppUniqueCode
                 .stream()
                 .map(this::mapToChangeResponse)
@@ -58,19 +61,13 @@ public class ChangeServiceImpl implements ChangeService {
 
     }
 
-    ChangeResponse mapToChangeResponse(Change change){
-        return ChangeResponse.builder()
-                .id(change.getId())
-                .changeTime(change.getChangeTime())
-                .changeTitle(change.getChangeTitle())
-                .personWhoAddChange(change.getPersonWhoAddChange())
-                .changeType(change.getChangeType())
-                .build();
+    ChangeResponse mapToChangeResponse(final Change change) {
+        return modelMapper.map(change, ChangeResponse.class);
     }
 
     @Override
     @Transactional
-    public void loadAppChanges(String uniqueCode) throws AppNotFoundException {
+    public void loadAppChanges(final String uniqueCode) throws AppNotFoundException {
         App app = appRepository.findAppByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new AppNotFoundException("app not found"));
 
@@ -85,7 +82,7 @@ public class ChangeServiceImpl implements ChangeService {
     }
 
     @Override
-    public synchronized void loadChange(App app, GitHubRequest gitHubRequest, String changeType) {
+    public synchronized void loadChange(final App app, final GitHubRequest gitHubRequest, final String changeType) {
         Object cachedChangesObject = cacheManager.getCache("githubChanges").get(changeType);
         if (cachedChangesObject != null && cachedChangesObject instanceof SimpleValueWrapper wrapper) {
             Object value = wrapper.get();
@@ -97,9 +94,9 @@ public class ChangeServiceImpl implements ChangeService {
         }
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Authorization", "token " + AUTH_TOKEN);
+        httpHeaders.set("Authorization", "token " + authToken);
 
-        String url = GITHUB_URL + gitHubRequest.getUserName() + "/" + gitHubRequest.getAppName() + "/" + changeType;
+        String url = githubUrl + gitHubRequest.getUserName() + "/" + gitHubRequest.getAppName() + "/" + changeType;
         HttpEntity<Void> httpEntity = new HttpEntity<>(httpHeaders);
 
         ResponseEntity<String> exchange = restTemplate.exchange(
@@ -118,7 +115,7 @@ public class ChangeServiceImpl implements ChangeService {
         cacheManager.getCache("githubChanges").put(changeType, changes);
     }
 
-    public void saveChanges(App app, List<Change> changes, String changeType) {
+    public void saveChanges(final App app, final List<Change> changes, final String changeType) {
         List<Change> changesToSave = changes.stream()
                 .filter(change -> !changeRepository.existsByChangeTitle(change.getChangeTitle()))
                 .map(change -> {
@@ -131,7 +128,7 @@ public class ChangeServiceImpl implements ChangeService {
     }
 
     @Override
-    public List<Change> createChangeFromJson(String json) {
+    public List<Change> createChangeFromJson(final String json) {
         ObjectMapper mapper = new ObjectMapper();
         List<Change> changes = new ArrayList<>();
         try {
@@ -143,16 +140,15 @@ public class ChangeServiceImpl implements ChangeService {
                 String username = user.path("login").asText();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
                 LocalDateTime localDateTime = LocalDateTime.parse(createdAt, formatter);
-                changes.add(createChange(title,username,localDateTime));
-
+                changes.add(createChange(title, username, localDateTime));
             }
-        }catch (JsonProcessingException e){
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         return changes;
     }
 
-    private Change createChange(String title,String username,LocalDateTime localDateTime){
+    private Change createChange(final String title, final String username, final LocalDateTime localDateTime) {
         Change change = new Change();
         change.setChangeTime(localDateTime);
         change.setPersonWhoAddChange(username);

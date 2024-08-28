@@ -69,14 +69,14 @@ class TaskServiceImplTest {
     }
 
     @Test
-    void testGetSortedTasks_LowPriority() throws TaskNotFoundException {
+    void testGetTasks_SortedByPriority_LowPriority() throws TaskNotFoundException {
         Task task1 = new Task();
         task1.setTaskName("Low Priority Task 1");
         task1.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
 
         when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE,pageNum,value)).thenReturn(Optional.of(Arrays.asList(task1)));
 
-        List<TaskResponse> result = taskService.getSortedTasks(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, pageNum, value);
+        List<TaskResponse> result = taskService.getTasksSortedByPriority(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, pageNum, value);
 
         assertEquals(1, result.size());
         assertEquals("Low Priority Task 1", result.get(0).getTaskName());

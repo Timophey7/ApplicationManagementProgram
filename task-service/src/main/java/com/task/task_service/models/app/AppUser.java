@@ -26,13 +26,13 @@ public class AppUser {
     @Column(name = "app_unique_code")
     String appUniqueCode;
 
-    @Column(name = "user_email",unique = false)
+    @Column(name = "user_email", unique = false)
     String userEmail;
 
     @Enumerated(EnumType.STRING)
     Role userRole;
 
-    public AppUser(int appId,String appUniqueCode, String userEmail,Role userRole) {
+    public AppUser(int appId, String appUniqueCode, String userEmail, Role userRole) {
         this.appId = appId;
         this.appUniqueCode = appUniqueCode;
         this.userEmail = userEmail;

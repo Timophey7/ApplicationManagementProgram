@@ -26,7 +26,7 @@ public class KafkaProducerConfig {
     private String bootstrapServers;
 
     @Bean
-    ProducerFactory<String, MessageResponse> producerFactory(){
+    ProducerFactory<String, MessageResponse> producerFactory() {
         Map<String, Object> properties = new HashMap<>();
         properties.put("bootstrap.servers", bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -35,16 +35,16 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public NewTopic newTopic(){
+    public NewTopic newTopic() {
         return TopicBuilder.name("invite")
                 .partitions(4)
                 .replicas(1)
-                .config(TopicConfig.RETENTION_MS_CONFIG,String.valueOf(Duration.ofDays(7).toMillis()))
+                .config(TopicConfig.RETENTION_MS_CONFIG, String.valueOf(Duration.ofDays(7).toMillis()))
                 .build();
     }
 
     @Bean
-    public KafkaTemplate<String, MessageResponse> kafkaTemplate(){
+    public KafkaTemplate<String, MessageResponse> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 

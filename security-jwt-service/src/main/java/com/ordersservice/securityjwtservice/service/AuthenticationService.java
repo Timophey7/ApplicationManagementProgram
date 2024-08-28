@@ -23,7 +23,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest registerRequest) {
+    public AuthenticationResponse register(final RegisterRequest registerRequest) {
         User user = User.builder()
                 .firstname(registerRequest.getFirstname())
                 .lastname(registerRequest.getLastname())
@@ -38,7 +38,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticateRequest authenticateRequest) {
+    public AuthenticationResponse authenticate(final AuthenticateRequest authenticateRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticateRequest.getEmail(),
@@ -50,7 +50,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public boolean checkUserExists(String email){
+    public boolean checkUserExists(final String email) {
         log.info(email);
         User user = userRepository.findByEmail(email).orElse(null);
         return user != null;

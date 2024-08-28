@@ -7,10 +7,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AppUserRepository extends JpaRepository<AppUser,Integer> {
+public interface AppUserRepository extends JpaRepository<AppUser, Integer> {
 
     List<AppUser> findAppUsersByUserEmail(String email);
 
-    AppUser findUserByUserEmailAndAppUniqueCode(String email,String uniqueCode);
+    AppUser findUserByUserEmailAndAppUniqueCode(String email, String uniqueCode);
 
 }

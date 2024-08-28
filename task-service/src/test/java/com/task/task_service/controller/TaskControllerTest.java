@@ -205,7 +205,7 @@ class TaskControllerTest {
     void sortTaskByPriority_Ok_HIGH_PRIORITY() throws Exception {
         String uniqueCode = "eu123";
         String enums = "HIGH_PRIORITY";
-        when(taskService.getSortedTasks(uniqueCode,PriorityEnums.HIGH_PRIORITY, pageNum, value))
+        when(taskService.getTasksSortedByPriority(uniqueCode,PriorityEnums.HIGH_PRIORITY, pageNum, value))
                 .thenReturn(List.of(taskResponse2,taskResponse1));
 
         ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/sortTaskByPriority", uniqueCode)
@@ -227,7 +227,7 @@ class TaskControllerTest {
     void sortTaskByDate_Ok_CLOSEST() throws Exception {
         String uniqueCode = "eu123";
         String enums = "CLOSEST";
-        when(taskService.getSortedTaskByDate(uniqueCode,DateEnums.CLOSEST, pageNum, value))
+        when(taskService.getTasksSortedByDate(uniqueCode,DateEnums.CLOSEST, pageNum, value))
                 .thenReturn(List.of(taskResponse1,taskResponse2));
 
         ResultActions perform = mockMvc.perform(get("/v1/tracker/apps/{uniqueCode}/sortTaskByDate", uniqueCode)

@@ -24,7 +24,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = false,level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 public class AppServiceImpl implements AppService {
 
     @Value("${security-service.host}")
@@ -37,37 +37,37 @@ public class AppServiceImpl implements AppService {
 
 
     @Override
-    public synchronized App createAppTrackerByTrackerDTO(CreateAppTrackerDTO appTrackerDTO) throws UserPrincipalNotFoundException, AppAlreadyExistsException {
-        if (appAlreadyExists(appTrackerDTO)){
+    public synchronized App createAppTrackerByTrackerDTO(final CreateAppTrackerDTO appTrackerDTO) throws UserPrincipalNotFoundException, AppAlreadyExistsException {
+        if (appAlreadyExists(appTrackerDTO)) {
             throw new AppAlreadyExistsException("app already exists");
         }
         App app = mapToApp(appTrackerDTO);
         checkUsersEmails(appTrackerDTO.getEmails());
-        sendMessagesToUsers(appTrackerDTO.getEmails(),app.getUniqueCode());
+        sendMessagesToUsers(appTrackerDTO.getEmails(), app.getUniqueCode());
         List<String> emails = appTrackerDTO.getEmails();
         appRepository.save(app);
-        saveUsersInApp(app,emails);
+        saveUsersInApp(app, emails);
         return app;
     }
 
-    public boolean appAlreadyExists(CreateAppTrackerDTO createAppTrackerDTO){
+    public boolean appAlreadyExists(final CreateAppTrackerDTO createAppTrackerDTO) {
         App app = appRepository.findAppByNameAndGitHubUserName(createAppTrackerDTO.getName(), createAppTrackerDTO.getGitHubUserName())
                 .orElse(null);
-        return app != null ;
+        return app != null;
     }
 
-    private void saveUsersInApp(App app, List<String> emails){
+    private void saveUsersInApp(final App app, final List<String> emails) {
         emails.stream()
                 .forEach(el -> {
-                    if (emails.stream().findFirst().orElse(null).equals(el)){
-                        appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(),el, Role.ADMIN));
-                    }else {
-                        appUserRepository.save(new AppUser(app.getId(),app.getUniqueCode(), el, Role.DEVELOPER));
+                    if (emails.stream().findFirst().orElse(null).equals(el)) {
+                        appUserRepository.save(new AppUser(app.getId(), app.getUniqueCode(), el, Role.ADMIN));
+                    } else {
+                        appUserRepository.save(new AppUser(app.getId(), app.getUniqueCode(), el, Role.DEVELOPER));
                     }
                 });
     }
 
-    private App mapToApp(CreateAppTrackerDTO appTrackerDTO){
+    private App mapToApp(final CreateAppTrackerDTO appTrackerDTO) {
         return  App.builder()
                 .name(appTrackerDTO.getName())
                 .uniqueCode(UniqueCodeGenerator.generateCode(appTrackerDTO.getName()))
@@ -78,11 +78,11 @@ public class AppServiceImpl implements AppService {
 
 
     @Override
-    public void checkUsersEmails(List<String> emails) throws UserPrincipalNotFoundException {
+    public void checkUsersEmails(final List<String> emails) throws UserPrincipalNotFoundException {
 
-        for (String email : emails){
+        for (String email : emails) {
             String result = webClientBuilder.build().post()
-                    .uri("http://"+securityHost+":8085/v1/auth/userExists")
+                    .uri("http://" + securityHost + ":8085/v1/auth/userExists")
                     .bodyValue(email)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -96,21 +96,21 @@ public class AppServiceImpl implements AppService {
 
 
     @Override
-    public void sendMessagesToUsers(List<String> emails,String uniqueCode) {
-        for (String email : emails){
+    public void sendMessagesToUsers(final List<String> emails, final String uniqueCode) {
+        for (String email : emails) {
             try {
                 sendMessageToKafkaTopic(email, uniqueCode);
-            }catch (Exception exception){
+            } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }
     }
 
-    public void sendMessageToKafkaTopic(String email,String uniqueCode){
+    public void sendMessageToKafkaTopic(final String email, final String uniqueCode) {
         MessageResponse messageResponse = new MessageResponse();
         messageResponse.setEmail(email);
         messageResponse.setUniqueCode(uniqueCode);
-        kafkaTemplate.send("invite",messageResponse);
+        kafkaTemplate.send("invite", messageResponse);
     }
 
 

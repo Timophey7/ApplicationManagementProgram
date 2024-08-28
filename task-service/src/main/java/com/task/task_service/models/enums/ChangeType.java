@@ -7,7 +7,7 @@ public enum ChangeType {
 
     private final String type;
 
-    ChangeType(String changeType) {
+    ChangeType(final String changeType) {
         this.type = changeType;
     }
 }

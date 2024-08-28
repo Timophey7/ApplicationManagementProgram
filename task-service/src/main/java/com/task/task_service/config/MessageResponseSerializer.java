@@ -24,7 +24,7 @@ public class MessageResponseSerializer implements Serializer<MessageResponse> {
 
         try {
             return mapper.writeValueAsBytes(messageResponse);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new SerializationException("Exception in serialization of userInfo", e);
         }
     }

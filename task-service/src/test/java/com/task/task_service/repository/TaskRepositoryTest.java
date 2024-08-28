@@ -41,7 +41,7 @@ class TaskRepositoryTest {
         task1.setPriorityEnums(PriorityEnums.HIGH_PRIORITY);
         task1.setAppUniqueCode("uniqueCode");
         task1.setStartTaskWork(LocalDateTime.of(2024, 8, 1, 12, 45, 12));
-        task1.setEndTaskWork(LocalDateTime.of(2024, 8, 27, 12, 45, 12));
+        task1.setEndTaskWork(LocalDateTime.of(2024, 8, 29, 12, 45, 12));
         task1.setCondition(TaskCondition.IN_TESTING);
         task1.setResponsiblePerson("Alex");
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task,Integer> {
+public interface TaskRepository extends JpaRepository<Task, Integer> {
 
 
     @Query(value = """
@@ -20,7 +20,7 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
             LIMIT :value
             OFFSET :offset
             """, nativeQuery = true)
-    Optional<List<Task>> sortTaskByHighPriority(@Param("code") String code,@Param("offset") int offset,@Param("value") int value);
+    Optional<List<Task>> sortTaskByHighPriority(@Param("code") String code, @Param("offset") int offset, @Param("value") int value);
 
     @Query(value = """
             SELECT * FROM controloftask.app_tasks
@@ -29,7 +29,7 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
             LIMIT :value
             OFFSET :offset
             """, nativeQuery = true)
-    Optional<List<Task>> sortTaskByLowPriority(@Param("code") String code,@Param("offset") int offset,@Param("value") int value);
+    Optional<List<Task>> sortTaskByLowPriority(@Param("code") String code, @Param("offset") int offset, @Param("value") int value);
 
     @Query(value = """
             SELECT *, TIMESTAMPDIFF(DAY, CURDATE(), end_task_work) AS days_left
@@ -39,7 +39,7 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
             LIMIT :value
             OFFSET :offset
             """, nativeQuery = true)
-    Optional<List<Task>> sortTaskByClosestDate(@Param("code") String code,@Param("offset") int offset,@Param("value") int value);
+    Optional<List<Task>> sortTaskByClosestDate(@Param("code") String code, @Param("offset") int offset, @Param("value") int value);
 
     @Query(value = """
             SELECT *, TIMESTAMPDIFF(DAY, CURDATE(), end_task_work) AS days_left
@@ -49,13 +49,13 @@ public interface TaskRepository extends JpaRepository<Task,Integer> {
             LIMIT :value
             OFFSET :offset
             """, nativeQuery = true)
-    Optional<List<Task>> sortTaskByDistantDate(@Param("code") String code,@Param("offset") int offset,@Param("value") int value);
+    Optional<List<Task>> sortTaskByDistantDate(@Param("code") String code, @Param("offset") int offset, @Param("value") int value);
 
 
-    @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_unique_code = :code",nativeQuery = true)
+    @Query(value = "SELECT * FROM controloftask.app_tasks WHERE app_unique_code = :code", nativeQuery = true)
     List<Task> findAllTasksByAppUniqueCode(@Param("code") String code);
 
-    boolean existsByTaskNameAndAppUniqueCode(String taskName,String uniqueCode);
+    boolean existsByTaskNameAndAppUniqueCode(String taskName, String uniqueCode);
 
     @Query(value = """
             SELECT * FROM controloftask.app_tasks

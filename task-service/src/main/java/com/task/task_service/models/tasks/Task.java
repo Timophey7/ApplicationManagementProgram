@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "app_tasks",indexes = {
+@Table(name = "app_tasks", indexes = {
         @Index(columnList = "appUniqueCode")
 })
 public class Task implements Serializable {
@@ -33,7 +33,7 @@ public class Task implements Serializable {
     @Column(name = "priority_enums")
     @Enumerated(EnumType.ORDINAL)
     PriorityEnums priorityEnums;
-    @Column(name = "task_condition",nullable = false)
+    @Column(name = "task_condition", nullable = false)
     @Enumerated(EnumType.STRING)
     TaskCondition condition;
     String description;
