@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.cache.CacheManager;
+import org.modelmapper.ModelMapper;
 import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,7 +39,7 @@ class ChangeServiceImplTest {
     ChangeRepository changeRepository;
 
     @Mock
-    CacheManager cacheManager;
+    ModelMapper modelMapper;
 
     private static final String UNIQUE_CODE = "uniqueCode";
 
@@ -76,6 +76,7 @@ class ChangeServiceImplTest {
 
         when(changeRepository.getChangesByAppUniqueCode(change.getAppUniqueCode()))
                 .thenReturn(List.of(change));
+        when(modelMapper.map(change, ChangeResponse.class)).thenReturn(changeResponse);
 
         List<ChangeResponse> changes = changeService.getChanges(change.getAppUniqueCode());
 
@@ -87,6 +88,7 @@ class ChangeServiceImplTest {
     @Test
     void mapToChangeResponse() {
 
+        when(modelMapper.map(change, ChangeResponse.class)).thenReturn(changeResponse);
         ChangeResponse changeResp = changeService.mapToChangeResponse(change);
 
         assertEquals(changeResp,changeResponse);

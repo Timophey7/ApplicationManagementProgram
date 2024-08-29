@@ -4,6 +4,7 @@ import com.task.task_service.exceptions.AppNotFoundException;
 import com.task.task_service.exceptions.TaskAlreadyExistsException;
 import com.task.task_service.exceptions.TaskNotFoundException;
 import com.task.task_service.models.app.App;
+import com.task.task_service.models.enums.DateEnums;
 import com.task.task_service.models.enums.PriorityEnums;
 import com.task.task_service.models.enums.TaskCondition;
 import com.task.task_service.models.tasks.Task;
@@ -11,14 +12,12 @@ import com.task.task_service.models.tasks.TaskDTO;
 import com.task.task_service.models.tasks.TaskResponse;
 import com.task.task_service.repository.AppRepository;
 import com.task.task_service.repository.TaskRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
+import org.modelmapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,49 +36,87 @@ class TaskServiceImplTest {
     @Mock
     private AppRepository appRepository;
 
+    @Mock
+    ModelMapper modelMapper;
+
     private static final String UNIQUE_CODE = "uniqueCode";
-    int pageNum;
-    int value;
+    private static final int PAGE_NUM = 0;
+    private static final int VALUE = 10;
 
-    @BeforeEach
-    public void setUp() {
-        pageNum = 0;
-        value = 10;
-    }
 
     @Test
-    void testGetTasksByApp() throws TaskNotFoundException {
-        Task task1 = new Task();
-        task1.setTaskName("Task 1");
-        task1.setDescription("Description 1");
-        task1.setPriorityEnums(PriorityEnums.HIGH_PRIORITY);
+    void testGetTasksByApp_Success() throws TaskNotFoundException {
+        List<Task> tasks = List.of(new Task());
+        when(taskRepository.getAllAppTasks(PAGE_NUM * VALUE, VALUE, UNIQUE_CODE))
+                .thenReturn(Optional.of(tasks));
 
-        Task task2 = new Task();
-        task2.setTaskName("Task 2");
-        task2.setDescription("Description 2");
-        task2.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
-
-        when(taskRepository.getAllAppTasks(pageNum,value,UNIQUE_CODE)).thenReturn(Optional.of(Arrays.asList(task1, task2)));
-
-        List<TaskResponse> result = taskService.getTasksByApp(UNIQUE_CODE, pageNum, value);
-
-        assertEquals(2, result.size());
-        assertEquals("Task 1", result.get(0).getTaskName());
-        assertEquals("Task 2", result.get(1).getTaskName());
-    }
-
-    @Test
-    void testGetTasks_SortedByPriority_LowPriority() throws TaskNotFoundException {
-        Task task1 = new Task();
-        task1.setTaskName("Low Priority Task 1");
-        task1.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
-
-        when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE,pageNum,value)).thenReturn(Optional.of(Arrays.asList(task1)));
-
-        List<TaskResponse> result = taskService.getTasksSortedByPriority(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, pageNum, value);
+        List<TaskResponse> result = taskService.getTasksByApp(UNIQUE_CODE, PAGE_NUM, VALUE);
 
         assertEquals(1, result.size());
-        assertEquals("Low Priority Task 1", result.get(0).getTaskName());
+    }
+
+    @Test
+    void testGetTasksByApp_NoTasksFound() {
+        when(taskRepository.getAllAppTasks(PAGE_NUM * VALUE, VALUE, UNIQUE_CODE))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.getTasksByApp(UNIQUE_CODE, PAGE_NUM, VALUE);
+        });
+
+        assertEquals("Tasks not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetTasksSortedByPriority_Success() throws TaskNotFoundException {
+        Task task = new Task();
+        task.setTaskName("high");
+        task.setPriorityEnums(PriorityEnums.HIGH_PRIORITY);
+        Task task1 = new Task();
+        task1.setTaskName("low");
+        task1.setPriorityEnums(PriorityEnums.LOW_PRIORITY);
+        List<Task> tasks = List.of(task1,task);
+        when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE, PAGE_NUM, VALUE))
+                .thenReturn(Optional.of(tasks));
+
+        List<TaskResponse> result = taskService.getTasksSortedByPriority(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, PAGE_NUM, VALUE);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testGetTasksSortedByPriority_NoTasksFound() {
+        when(taskRepository.sortTaskByLowPriority(UNIQUE_CODE, PAGE_NUM, VALUE))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.getTasksSortedByPriority(UNIQUE_CODE, PriorityEnums.LOW_PRIORITY, PAGE_NUM, VALUE);
+        });
+
+        assertEquals("Tasks not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetTasksSortedByDate_Success() throws TaskNotFoundException {
+        List<Task> tasks = List.of(new Task());
+        when(taskRepository.sortTaskByClosestDate(UNIQUE_CODE, PAGE_NUM, VALUE))
+                .thenReturn(Optional.of(tasks));
+
+        List<TaskResponse> result = taskService.getTasksSortedByDate(UNIQUE_CODE, DateEnums.CLOSEST, PAGE_NUM, VALUE);
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void testGetTasksSortedByDate_NoTasksFound() {
+        when(taskRepository.sortTaskByClosestDate(UNIQUE_CODE, PAGE_NUM, VALUE))
+                .thenReturn(Optional.empty());
+
+        TaskNotFoundException exception = assertThrows(TaskNotFoundException.class, () -> {
+            taskService.getTasksSortedByDate(UNIQUE_CODE, DateEnums.CLOSEST, PAGE_NUM, VALUE);
+        });
+
+        assertEquals("Tasks not found", exception.getMessage());
     }
 
     @Test
@@ -137,10 +174,13 @@ class TaskServiceImplTest {
 
     @Test
     void testGetTaskResponseById_Success() throws TaskNotFoundException {
+        TaskResponse taskResponse = new TaskResponse();
+        taskResponse.setTaskName("Task by ID");
         Task task = new Task();
         task.setId(1);
         task.setTaskName("Task by ID");
 
+        when(modelMapper.map(task,TaskResponse.class)).thenReturn(taskResponse);
         when(taskRepository.findById(1)).thenReturn(Optional.of(task));
 
         TaskResponse result = taskService.getTaskResponseById(1);
